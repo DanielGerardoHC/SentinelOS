@@ -1,0 +1,19 @@
+# Binarios Go
+bin/
+*.exe
+*.out
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Variables sensibles
+.env
+.env.*
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store

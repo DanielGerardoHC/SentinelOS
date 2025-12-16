@@ -1,0 +1,67 @@
+zones:
+  - name: trust
+    type: l3
+  - name: untrust
+    type: l3
+  - name: dmz
+    type: l3
+  - name: voice-voip
+    type: l3
+
+interfaces:
+  - name: enp0s3
+    zone: untrust
+    ip: 192.168.1.29/24
+    management: [ssh, https, ping]
+
+  - name: enp0s8
+    zone: trust
+    ip: 10.20.10.1/24
+
+addresses:
+  - name: SERVERS
+    ips:
+      - 10.0.0.0/24
+
+services:
+  - name: HTTP
+    protocol: tcp
+    ports: [80]
+
+  - name: QUIC
+    protocol: udp
+    ports: [443]
+
+  - name: HTTPS
+    protocol: tcp
+    ports: [443]
+
+  - name: DNS
+    protocol: udp
+    ports: [53]
+
+routes: 
+  - id: 1
+    destination: 0.0.0.0/0
+    gateway: 192.168.1.1
+    interface: enp0s3
+    description: "Default route to internet"
+
+policies:
+  - id: 1
+    src-zone: trust
+    dst-zone: untrust
+    src-addr: any
+    dst-addr: any
+    services: [HTTP, HTTPS, DNS, QUIC]
+    action: allow
+    log: true
+
+nat:
+  - id: 1
+    type: source
+    src-zone: trust
+    dst-zone: untrust
+    outInterface: enp0s3
+    action: masquerade
+    description: "Masquerade for trust to untrust"

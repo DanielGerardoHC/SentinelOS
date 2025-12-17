@@ -8,6 +8,8 @@ const (
 )
 
 type Zone struct {
-	Name string
-	Type ZoneType
+	Name       string
+	Type       ZoneType
+	Interfaces []string
+	Networks   []string
 }

@@ -8,13 +8,14 @@ import (
 
 type RawConfig struct {
 	Zones []struct {
-		Name string `yaml:"name"`
-		Type string `yaml:"type"`
+		Name       string   `yaml:"name"`
+		Type       string   `yaml:"type"`
+		Interfaces []string `yaml:"interfaces"`
+		Networks   []string `yaml:"networks"`
 	} `yaml:"zones"`
 
 	Interfaces []struct {
 		Name       string   `yaml:"name"`
-		Zone       string   `yaml:"zone"`
 		IP         string   `yaml:"ip"`
 		Management []string `yaml:"management"`
 	} `yaml:"interfaces"`
@@ -29,6 +30,15 @@ type RawConfig struct {
 		Protocol string `yaml:"protocol"`
 		Ports    []int  `yaml:"ports"`
 	} `yaml:"services"`
+
+	Route []struct {
+		ID          int    `yaml:"id"`
+		Destination string `yaml:"destination"`
+		Gateway     string `yaml:"gateway"`
+		Interface   string `yaml:"interface"`
+		Metric      int    `yaml:"metric"`
+		Description string `yaml:"description"`
+	} `yaml:"routes"`
 
 	Policies []struct {
 		ID       int      `yaml:"id"`

@@ -5,6 +5,7 @@ import (
 	"log"
 	"sentinelos/core/internal/config"
 	"sentinelos/core/internal/firewall"
+	"sentinelos/core/internal/network"
 )
 
 func main() {
@@ -34,6 +35,14 @@ func main() {
 		fmt.Printf("Interfaces: %d\n", len(fw.Interfaces))
 		fmt.Printf("Policies: %d\n", len(fw.Policies))
 	*/
+	routes := network.GenerateRoutesConfig(fw.Routes)
+	err = firewall.ApplyRoutes(routes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("========== RUTAS CREADAS ==========")
+	fmt.Println(routes)
+
 	rules := firewall.GenerateRules(fw)
 
 	fmt.Println("========== NFTABLES CREADAS ==========")

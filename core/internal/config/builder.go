@@ -23,20 +23,16 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		}
 
 		zone := &model.Zone{
-			Name: z.Name,
-			Type: model.ZoneType(z.Type),
+			Name:       z.Name,
+			Type:       model.ZoneType(z.Type),
+			Interfaces: z.Interfaces,
+			Networks:   z.Networks,
 		}
 
 		fw.Zones[z.Name] = zone
 	}
-
 	// 2. interfaces
 	for _, i := range raw.Interfaces {
-
-		zone, ok := fw.Zones[i.Zone]
-		if !ok {
-			return nil, fmt.Errorf("la interfaz %s referencia zona inexistente %s", i.Name, i.Zone)
-		}
 
 		_, ipnet, err := net.ParseCIDR(i.IP)
 		if err != nil {
@@ -45,7 +41,6 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		iface := &model.Interface{
 			Name:       i.Name,
-			Zone:       zone,
 			IP:         ipnet,
 			Management: i.Management,
 		}
@@ -84,6 +79,20 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.Services[s.Name] = svc
 	}
 
+	// Routes
+
+	for _, r := range raw.Route {
+		route := &model.Route{
+			ID:          r.ID,
+			Destination: r.Destination,
+			Gateway:     r.Gateway,
+			Interface:   r.Interface,
+			Metric:      r.Metric,
+			Description: r.Description,
+		}
+		fw.Routes = append(fw.Routes, route)
+	}
+
 	// 5. policies
 
 	for _, p := range raw.Policies {
@@ -93,10 +102,10 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		srcAddr := fw.Addresses[p.SrcAddr]
 		dstAddr := fw.Addresses[p.DstAddr]
 
-		if srcZone == nil || dstZone == nil {
-			return nil, fmt.Errorf("policy %d referencia zonas inválidas", p.ID)
-		}
-
+		/*	if srcZone == nil || dstZone == nil {
+				return nil, fmt.Errorf("policy %d referencia zonas inválidas", p.ID)
+			}
+		*/
 		var services []*model.Service
 		for _, s := range p.Services {
 			svc := fw.Services[s]

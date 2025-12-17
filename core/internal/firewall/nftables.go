@@ -43,21 +43,17 @@ func GenerateRules(fw *model.Firewall) string {
 
 func generatePolicyRule(p *model.Policy, fw *model.Firewall) string {
 
-	srcIf := interfaceByZone(fw, p.SrcZone.Name)
-	dstIf := interfaceByZone(fw, p.DstZone.Name)
-
-	if srcIf == "" || dstIf == "" {
-		return ""
-	}
+	srcMatch := zoneSrcMatch(p.SrcZone)
+	dstMatch := zoneDstMatch(p.DstZone)
 
 	var rules []string
 
 	for _, svc := range p.Services {
 
 		rule := fmt.Sprintf(
-			"    iifname \"%s\" oifname \"%s\" %s dport %s %s\n",
-			srcIf,
-			dstIf,
+			"    %s %s %s dport %s %s\n",
+			srcMatch,
+			dstMatch,
 			svc.Protocol,
 			portsToString(svc.Ports),
 			actionToNft(p.Action),
@@ -69,12 +65,35 @@ func generatePolicyRule(p *model.Policy, fw *model.Firewall) string {
 	return strings.Join(rules, "")
 }
 
-func interfaceByZone(fw *model.Firewall, zone string) string {
-	for _, iface := range fw.Interfaces {
-		if iface.Zone.Name == zone {
-			return iface.Name
-		}
+func zoneSrcMatch(z *model.Zone) string {
+	if z == nil {
+		return "" // ANY
 	}
+
+	if len(z.Networks) > 0 {
+		return fmt.Sprintf("ip saddr %s", cidrSet(z.Networks))
+	}
+
+	if len(z.Interfaces) > 0 {
+		return fmt.Sprintf("iifname %s", ifaceSet(z.Interfaces))
+	}
+
+	return ""
+}
+
+func zoneDstMatch(z *model.Zone) string {
+	if z == nil {
+		return "" // ANY
+	}
+
+	if len(z.Networks) > 0 {
+		return fmt.Sprintf("ip daddr %s", cidrSet(z.Networks))
+	}
+
+	if len(z.Interfaces) > 0 {
+		return fmt.Sprintf("oifname %s", ifaceSet(z.Interfaces))
+	}
+
 	return ""
 }
 
@@ -99,4 +118,24 @@ func actionToNft(a model.Action) string {
 	default:
 		return "drop"
 	}
+}
+
+func cidrSet(nets []string) string {
+	if len(nets) == 1 {
+		return nets[0]
+	}
+	return "{ " + strings.Join(nets, ", ") + " }"
+}
+
+func ifaceSet(ifaces []string) string {
+	if len(ifaces) == 1 {
+		return fmt.Sprintf("\"%s\"", ifaces[0])
+	}
+
+	var quoted []string
+	for _, i := range ifaces {
+		quoted = append(quoted, fmt.Sprintf("\"%s\"", i))
+	}
+
+	return "{ " + strings.Join(quoted, ", ") + " }"
 }

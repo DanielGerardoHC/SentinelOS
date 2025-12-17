@@ -1,21 +1,22 @@
 zones:
   - name: trust
     type: l3
+    interfaces:
+      - enp0s8
+    networks:
+      - 10.20.10.0/24
+      - 10.20.20.0/24
   - name: untrust
     type: l3
-  - name: dmz
-    type: l3
-  - name: voice-voip
-    type: l3
+    interfaces:
+      - enp0s3
 
 interfaces:
   - name: enp0s3
-    zone: untrust
     ip: 192.168.1.29/24
     management: [ssh, https, ping]
 
   - name: enp0s8
-    zone: trust
     ip: 10.20.10.1/24
 
 addresses:
@@ -45,13 +46,14 @@ routes:
     destination: 0.0.0.0/0
     gateway: 192.168.1.1
     interface: enp0s3
+    metric: 100
     description: "Default route to internet"
 
 policies:
   - id: 1
-    src-zone: trust
+    src-zone: 
     dst-zone: untrust
-    src-addr: any
+    src-addr: 10.20.10.1/24
     dst-addr: any
     services: [HTTP, HTTPS, DNS, QUIC]
     action: allow

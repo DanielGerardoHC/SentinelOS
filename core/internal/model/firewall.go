@@ -5,6 +5,7 @@ type Firewall struct {
 	Interfaces map[string]*Interface
 	Addresses  map[string]*Address
 	Services   map[string]*Service
+	Routes     []*Route
 	Policies   []*Policy
 	NATRules   []*NATRule
 	// Routes     []*Route

@@ -1,9 +1,9 @@
 package model
 
-import "net"
-
 type Interface struct {
 	Name       string
-	IP         *net.IPNet
+	IP         string
+	Zone       string
+	State      string
 	Management []string
 }

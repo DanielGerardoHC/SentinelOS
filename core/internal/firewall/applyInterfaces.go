@@ -5,9 +5,9 @@ import (
 	"os/exec"
 )
 
-func ApplyRoutes(routes string) error {
+func ApplyInterfacesConfig(interfaces string) error {
 
-	cmd := exec.Command("/bin/sh", "-c", routes)
+	cmd := exec.Command("/bin/sh", "-c", interfaces)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

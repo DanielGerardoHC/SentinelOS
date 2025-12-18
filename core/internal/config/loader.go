@@ -17,6 +17,8 @@ type RawConfig struct {
 	Interfaces []struct {
 		Name       string   `yaml:"name"`
 		IP         string   `yaml:"ip"`
+		Zone       string   `yaml:"zone"`
+		State      string   `yaml:"state"`
 		Management []string `yaml:"management"`
 	} `yaml:"interfaces"`
 

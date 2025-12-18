@@ -35,6 +35,14 @@ func main() {
 		fmt.Printf("Interfaces: %d\n", len(fw.Interfaces))
 		fmt.Printf("Policies: %d\n", len(fw.Policies))
 	*/
+	interfaces := network.GenerateInterfacesConfig(fw.Interfaces)
+	err = firewall.ApplyInterfacesConfig(interfaces)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("========== CONFIG INTERFACES CREADAS ==========")
+	fmt.Println(interfaces)
+
 	routes := network.GenerateRoutesConfig(fw.Routes)
 	err = firewall.ApplyRoutes(routes)
 	if err != nil {

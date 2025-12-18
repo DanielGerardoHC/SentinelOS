@@ -12,12 +12,18 @@ zones:
       - enp0s3
 
 interfaces:
-  - name: enp0s3
-    ip: 192.168.1.29/24
-    management: [ssh, https, ping]
-
   - name: enp0s8
     ip: 10.20.10.1/24
+    zone: trust
+    state: up
+    management: [ping]
+
+vlans: 
+  - name: vlan10
+    parent: enp0s8
+    id: 10
+    ip: 10.30.10.1/24
+    zone: trust
 
 addresses:
   - name: SERVERS
@@ -51,7 +57,7 @@ routes:
 
 policies:
   - id: 1
-    src-zone: 
+    src-zone: trust
     dst-zone: untrust
     src-addr: 10.20.10.1/24
     dst-addr: any

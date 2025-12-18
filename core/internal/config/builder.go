@@ -34,14 +34,11 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 	// 2. interfaces
 	for _, i := range raw.Interfaces {
 
-		_, ipnet, err := net.ParseCIDR(i.IP)
-		if err != nil {
-			return nil, fmt.Errorf("IP inválida en interfaz %s", i.Name)
-		}
-
 		iface := &model.Interface{
 			Name:       i.Name,
-			IP:         ipnet,
+			IP:         i.IP,
+			Zone:       i.Zone,
+			State:      i.State,
 			Management: i.Management,
 		}
 

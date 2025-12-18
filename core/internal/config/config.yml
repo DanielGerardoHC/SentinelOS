@@ -19,11 +19,13 @@ interfaces:
     management: [ping]
 
 vlans: 
-  - name: vlan10
+  - name: enp0s8.10
     parent: enp0s8
     id: 10
     ip: 10.30.10.1/24
+    state: up
     zone: trust
+    management: [ping]
 
 addresses:
   - name: SERVERS
@@ -47,10 +49,27 @@ services:
     protocol: udp
     ports: [53]
 
+dhcp:
+  - interface: enp0s8
+    pool: 10.20.10.100-10.20.10.200
+    gateway: 10.20.10.1
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    lease_time: 12h
+    
+  - interface: enp0s8.10
+    pool: 10.30.10.100-10.30.10.200
+    gateway: 10.30.10.1
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1 
+    lease_time: 12h 
+
 routes: 
   - id: 1
     destination: 0.0.0.0/0
-    gateway: 192.168.1.1
+    gateway: 10.30.35.1
     interface: enp0s3
     metric: 100
     description: "Default route to internet"

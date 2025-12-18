@@ -10,9 +10,12 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 	fw := &model.Firewall{
 		Zones:      make(map[string]*model.Zone),
 		Interfaces: make(map[string]*model.Interface),
+		Vlans:      make(map[string]*model.Vlan),
 		Addresses:  make(map[string]*model.Address),
 		Services:   make(map[string]*model.Service),
+		Routes:     []*model.Route{},
 		Policies:   []*model.Policy{},
+		NATRules:   []*model.NATRule{},
 	}
 
 	// pasos:
@@ -45,6 +48,21 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.Interfaces[i.Name] = iface
 	}
 
+	// 2.5 vlans
+	for _, v := range raw.Vlans {
+
+		vlan := &model.Vlan{
+			Name:       v.Name,
+			Parent:     v.Parent,
+			ID:         v.ID,
+			IP:         v.IP,
+			Zone:       v.Zone,
+			State:      v.State,
+			Management: v.Management,
+		}
+
+		fw.Vlans[v.Name] = vlan
+	}
 	// 3. addresses
 
 	for _, a := range raw.Addresses {

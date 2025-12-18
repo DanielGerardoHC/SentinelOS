@@ -6,29 +6,31 @@ import (
 	"strings"
 )
 
-func GenerateInterfacesConfig(interfaces map[string]*model.Interface) string {
+func GenerateVlansConfig(vlans map[string]*model.Vlan) string {
 
 	var sb strings.Builder
-	for _, iface := range interfaces {
+	for _, vlan := range vlans {
 		sb.WriteString(fmt.Sprintf(
-			"ip addr flush dev %s\n",
-			iface.Name,
+			"ip link add link %s name %s type vlan id %d\n",
+			vlan.Parent,
+			vlan.Name,
+			vlan.ID,
 		))
 		sb.WriteString(fmt.Sprintf(
-			"ip addr replace %s dev %s\n",
-			iface.IP,
-			iface.Name,
+			"ip addr add %s dev %s\n",
+			vlan.IP,
+			vlan.Name,
 		))
 
-		if iface.State == "up" {
+		if vlan.State == "up" {
 			sb.WriteString(fmt.Sprintf(
 				"ip link set %s up\n",
-				iface.Name,
+				vlan.Name,
 			))
-		} else if iface.State == "down" {
+		} else if vlan.State == "down" {
 			sb.WriteString(fmt.Sprintf(
 				"ip link set %s down\n",
-				iface.Name,
+				vlan.Name,
 			))
 		}
 	}

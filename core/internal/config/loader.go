@@ -22,6 +22,16 @@ type RawConfig struct {
 		Management []string `yaml:"management"`
 	} `yaml:"interfaces"`
 
+	Vlans []struct {
+		Name       string   `yaml:"name"`
+		Parent     string   `yaml:"parent"`
+		ID         int      `yaml:"id"`
+		IP         string   `yaml:"ip"`
+		Zone       string   `yaml:"zone"`
+		State      string   `yaml:"state"`
+		Management []string `yaml:"management"`
+	} `yaml:"vlans"`
+
 	Addresses []struct {
 		Name string   `yaml:"name"`
 		IPs  []string `yaml:"ips"`

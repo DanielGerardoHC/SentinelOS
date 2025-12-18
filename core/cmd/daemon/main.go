@@ -18,7 +18,6 @@ func main() {
 	}
 
 	fmt.Println("[OK] Archivo YAML cargado correctamente")
-
 	/*
 		fmt.Printf("Zonas: %d\n", len(raw.Zones))
 		fmt.Printf("Interfaces: %d\n", len(raw.Interfaces))
@@ -28,20 +27,34 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Println("[OK] Model Firewall construido correctamente")
 	/*
 		fmt.Printf("Zonas: %d\n", len(fw.Zones))
 		fmt.Printf("Interfaces: %d\n", len(fw.Interfaces))
 		fmt.Printf("Policies: %d\n", len(fw.Policies))
 	*/
+
+	/*  *********************************************************** */
 	interfaces := network.GenerateInterfacesConfig(fw.Interfaces)
 	err = firewall.ApplyInterfacesConfig(interfaces)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Println("========== CONFIG INTERFACES CREADAS ==========")
 	fmt.Println(interfaces)
+
+	/*  *********************************************************** */
+
+	vlans := network.GenerateVlansConfig(fw.Vlans)
+	err = firewall.ApplyVlansConfig(vlans)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("========== CONFIG VLANS CREADAS ==========")
+	fmt.Println(vlans)
+
+	/*  *********************************************************** */
 
 	routes := network.GenerateRoutesConfig(fw.Routes)
 	err = firewall.ApplyRoutes(routes)
@@ -51,10 +64,10 @@ func main() {
 	fmt.Println("========== RUTAS CREADAS ==========")
 	fmt.Println(routes)
 
+	/*  *********************************************************** */
+
 	rules := firewall.GenerateRules(fw)
-
 	fmt.Println("========== NFTABLES CREADAS ==========")
-
 	rules += firewall.GenerateNATRules(fw)
 	fmt.Println("========== NATRULES CREADAS ==========")
 	fmt.Println(rules)

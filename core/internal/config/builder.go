@@ -165,5 +165,22 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		fw.NATRules = append(fw.NATRules, natRule)
 	}
+
+	// dhcp rules
+	for _, d := range raw.DHCP {
+		dhcp := &model.DHCP{
+			Interface:    d.Interface,
+			StartIP:      d.StartIP,
+			EndIP:        d.EndIP,
+			SubnetMask:   d.SubnetMask,
+			Gateway:      d.Gateway,
+			DNS:          d.DNS,
+			LeaseTimeMin: d.LeaseTimeMin,
+		}
+
+		fw.DHCPConfigs = append(fw.DHCPConfigs, dhcp)
+	}
+
 	return fw, nil
+
 }

@@ -17,6 +17,8 @@ func GenerateRules(fw *model.Firewall) string {
 
 	sb.WriteString("  chain input {\n")
 	sb.WriteString("    type filter hook input priority 0;\n")
+	sb.WriteString("    udp dport 67 accept\n")
+	sb.WriteString("    udp dport 68 accept\n")
 	sb.WriteString("    policy drop;\n")
 
 	sb.WriteString("    ct state established,related accept\n")
@@ -28,6 +30,8 @@ func GenerateRules(fw *model.Firewall) string {
 
 	sb.WriteString("  chain forward {\n")
 	sb.WriteString("    type filter hook forward priority 0;\n")
+	sb.WriteString("    udp dport 67 accept\n")
+	sb.WriteString("    udp dport 68 accept\n")
 	sb.WriteString("    policy drop;\n\n")
 	sb.WriteString("    ct state established,related accept\n")
 

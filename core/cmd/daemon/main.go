@@ -6,6 +6,7 @@ import (
 	"sentinelos/core/internal/config"
 	"sentinelos/core/internal/firewall"
 	"sentinelos/core/internal/network"
+	"sentinelos/core/internal/system"
 )
 
 func main() {
@@ -65,6 +66,17 @@ func main() {
 	fmt.Println(routes)
 
 	/*  *********************************************************** */
+	var ifaceNames []string
+	for name := range fw.Interfaces {
+		ifaceNames = append(ifaceNames, name)
+	}
+	err = system.ApplySysctl(ifaceNames)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("========== SYSCTL CONFIGURADO ==========")
+
+	/*  *********************************************************** */
 
 	rules := firewall.GenerateRules(fw)
 	fmt.Println("========== NFTABLES CREADAS ==========")
@@ -78,5 +90,18 @@ func main() {
 	}
 
 	fmt.Println("[OK] Reglas aplicadas")
+
+	/*  *********************************************************** */
+
+	dnsmasqConfig := network.GenerateDnsmasqConfig(fw.DHCPConfigs)
+	err = firewall.ApplyDHCP(dnsmasqConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("========== CONFIG DHCP CREADA ==========")
+	fmt.Println(dnsmasqConfig)
+
+	fmt.Println("[OK] Configuración DHCP aplicada")
 
 }

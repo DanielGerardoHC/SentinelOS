@@ -72,6 +72,16 @@ type RawConfig struct {
 		OutInterface string `yaml:"outInterface"`
 		Description  string `yaml:"description"`
 	} `yaml:"nat"`
+
+	DHCP []struct {
+		Interface    string   `yaml:"interface"`
+		StartIP      string   `yaml:"start-ip"`
+		EndIP        string   `yaml:"end-ip"`
+		SubnetMask   string   `yaml:"subnet-mask"`
+		Gateway      string   `yaml:"gateway"`
+		DNS          []string `yaml:"dns"`
+		LeaseTimeMin int      `yaml:"lease-time-min"`
+	} `yaml:"dhcp"`
 }
 
 func LoadRawConfig(path string) (*RawConfig, error) {

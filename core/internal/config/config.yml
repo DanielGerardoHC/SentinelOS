@@ -12,6 +12,11 @@ zones:
       - enp0s3
 
 interfaces:
+  - name: enp0s3
+    ip: 10.30.35.168/24
+    zone: untrust
+    state: up
+    management: [ping]
   - name: enp0s8
     ip: 10.20.10.1/24
     zone: trust
@@ -78,9 +83,9 @@ routes:
 
 policies:
   - id: 1
-    src-zone: trust
+    src-zone: any
     dst-zone: untrust
-    src-addr: 10.20.10.1/24
+    src-addr: any
     dst-addr: any
     services: [HTTP, HTTPS, DNS, QUIC]
     action: allow

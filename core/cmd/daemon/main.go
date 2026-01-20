@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"sentinelos/core/internal/api/handlers"
+	"sentinelos/core/internal/auth"
 	"sentinelos/core/internal/config"
 	"sentinelos/core/internal/firewall"
 	"sentinelos/core/internal/network"
@@ -104,4 +107,27 @@ func main() {
 
 	fmt.Println("[OK] Configuración DHCP aplicada")
 
+	/*  *********************************************************** */
+
+	// 1️⃣ Cargar usuarios
+	users, err := auth.LoadUsers("/srv/sentinelos/core/internal/auth/users.yml")
+	if err != nil {
+		log.Fatalf("error loading users: %v", err)
+	}
+
+	// 2️⃣ Crear AuthService
+	authService := auth.NewAuthService(users)
+
+	// 3️⃣ Router básico
+	mux := http.NewServeMux()
+
+	// 4️⃣ Ruta de login
+	mux.HandleFunc("/api/login", handlers.LoginHandler(authService))
+
+	// 5️⃣ Levantar servidor
+	log.Println("SentinelOS API listening on :8080")
+	err = http.ListenAndServe(":8080", mux)
+	if err != nil {
+		log.Fatalf("server error: %v", err)
+	}
 }

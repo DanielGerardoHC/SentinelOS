@@ -1,0 +1,31 @@
+users:
+  - username: admin
+    password_hash: "$2a$10$2QClkFjmKNdZUMLjBzYcbefkOdyhOSgMXQYlXHOudCsYbinQt3XWe"
+    role: superadmin
+    enabled: true
+
+  - username: operator
+    password_hash: "$2b$12$8kGJp..."
+    role: operator
+    enabled: true
+
+roles:
+  superadmin:
+    permissions:
+      - "*"
+
+  admin:
+    permissions:
+      - read:*
+      - write:*
+      - commit
+
+  operator:
+    permissions:
+      - read:*
+      - write:interfaces
+      - write:routes
+
+  readonly:
+    permissions:
+      - read:*

@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"sentinelos/core/internal/api/handlers"
-	"sentinelos/core/internal/auth"
 	"sentinelos/core/internal/config"
 	"sentinelos/core/internal/firewall"
 	"sentinelos/core/internal/network"
 	"sentinelos/core/internal/system"
+	"sentinelos/core/pkg/utils"
+	"sentinelos/core/internal/api"
 )
 
 func main() {
@@ -38,7 +37,7 @@ func main() {
 		fmt.Printf("Policies: %d\n", len(fw.Policies))
 	*/
 
-	/*  *********************************************************** */
+	/* *********************************************************** */
 	interfaces := network.GenerateInterfacesConfig(fw.Interfaces)
 	err = firewall.ApplyInterfacesConfig(interfaces)
 	if err != nil {
@@ -108,26 +107,21 @@ func main() {
 	fmt.Println("[OK] Configuración DHCP aplicada")
 
 	/*  *********************************************************** */
+	stopLCD := make(chan struct{})
 
-	// 1️⃣ Cargar usuarios
-	users, err := auth.LoadUsers("/srv/sentinelos/core/internal/auth/users.yml")
-	if err != nil {
-		log.Fatalf("error loading users: %v", err)
-	}
+	go utils.StartLCDStatus(stopLCD)
+	fmt.Println("Estado del hardware en lcd actualizado")
 
-	// 2️⃣ Crear AuthService
-	authService := auth.NewAuthService(users)
+	/*  *********************************************************** */
 
-	// 3️⃣ Router básico
-	mux := http.NewServeMux()
+    // API RESTfull de sentinelos puerto 8080
+	go api.StartAPIServer()
+	fmt.Println("API RESTful de SentinelOS iniciada en el puerto 8080")
+	// Bloqueo principal para mantener el daemon corriendo
+	select {}
+	
+	/*  *********************************************************** */
 
-	// 4️⃣ Ruta de login
-	mux.HandleFunc("/api/login", handlers.LoginHandler(authService))
+   /************************************************************ */
 
-	// 5️⃣ Levantar servidor
-	log.Println("SentinelOS API listening on :8080")
-	err = http.ListenAndServe(":8080", mux)
-	if err != nil {
-		log.Fatalf("server error: %v", err)
-	}
 }

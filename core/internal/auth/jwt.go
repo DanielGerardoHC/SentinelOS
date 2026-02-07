@@ -12,13 +12,13 @@ var jwtKey []byte
 func init() {
 	secret := os.Getenv("SENTINELOS_JWT_SECRET")
 	if secret == "" {
-		// fallback SOLO para desarrollo
+		// fallback temporal
 		secret = "CAMBIAR_ESTO_LUEGO"
 	}
 	jwtKey = []byte(secret)
 }
 
-// JwtKey expone la clave JWT de forma controlada
+// jwtkey expone la clave de forma controlada
 func JwtKey() []byte {
 	return jwtKey
 }

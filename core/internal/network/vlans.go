@@ -11,13 +11,13 @@ func GenerateVlansConfig(vlans map[string]*model.Vlan) string {
 	var sb strings.Builder
 	for _, vlan := range vlans {
 		sb.WriteString(fmt.Sprintf(
-			"ip link add link %s name %s type vlan id %d\n",
+			"ip link replace link %s name %s type vlan id %d\n",
 			vlan.Parent,
 			vlan.Name,
 			vlan.ID,
 		))
 		sb.WriteString(fmt.Sprintf(
-			"ip addr add %s dev %s\n",
+			"ip addr replace %s dev %s\n",
 			vlan.IP,
 			vlan.Name,
 		))

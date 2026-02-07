@@ -2,32 +2,45 @@ zones:
   - name: trust
     type: l3
     interfaces:
-      - enp0s8
+      - ens33
+      - ens34
+      - ens35
     networks:
       - 10.20.10.0/24
       - 10.20.20.0/24
+      - 10.20.15.0/24
   - name: untrust
     type: l3
     interfaces:
-      - enp0s3
+      - ens32
 
 interfaces:
-  - name: enp0s3
-    ip: 10.30.35.168/24
+  - name: ens32
+    ip: 172.16.0.200/24
     zone: untrust
     state: up
     management: [ping]
-  - name: enp0s8
+  - name: ens33
     ip: 10.20.10.1/24
     zone: trust
     state: up
     management: [ping]
+  - name: ens34
+    ip: 10.20.20.1/24
+    zone: trust
+    state: up
+    management: [ping]
+  - name: ens35
+    ip:
+    zone: trust
+    state: up
+    management: [ping]
 
-vlans: 
-  - name: enp0s8.10
-    parent: enp0s8
+vlans:
+  - name: ens35.10
+    parent: ens35
     id: 10
-    ip: 10.30.10.1/24
+    ip: 10.20.15.1/24
     state: up
     zone: trust
     management: [ping]
@@ -55,7 +68,7 @@ services:
     ports: [53]
 
 dhcp:
-  - interface: enp0s8
+  - interface: ens33
     start-ip: 10.20.10.20
     end-ip: 10.20.10.200
     gateway: 10.20.10.1
@@ -64,10 +77,10 @@ dhcp:
       - 1.1.1.1
     lease-time-min: 1000
     
-  - interface: enp0s8.10
-    start-ip: 10.30.10.20
-    end-ip: 10.30.10.200
-    gateway: 10.30.10.1
+  - interface: enp35.10
+    start-ip: 10.20.15.20
+    end-ip: 10.20.15.200
+    gateway: 10.20.15.1
     dns:
       - 8.8.8.8
       - 1.1.1.1 
@@ -76,8 +89,8 @@ dhcp:
 routes: 
   - id: 1
     destination: 0.0.0.0/0
-    gateway: 10.30.35.1
-    interface: enp0s3
+    gateway: 172.16.0.1
+    interface: ens32
     metric: 100
     description: "Default route to internet"
 
@@ -96,6 +109,6 @@ nat:
     type: source
     src-zone: trust
     dst-zone: untrust
-    outInterface: enp0s3
+    outInterface: ens32
     action: masquerade
     description: "Masquerade for trust to untrust"

@@ -116,7 +116,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		dstZone := fw.Zones[p.DstZone]
 		srcAddr := fw.Addresses[p.SrcAddr]
 		dstAddr := fw.Addresses[p.DstAddr]
-
+		
 		/*	if srcZone == nil || dstZone == nil {
 				return nil, fmt.Errorf("policy %d referencia zonas inválidas", p.ID)
 			}

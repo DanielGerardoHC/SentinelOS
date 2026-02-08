@@ -30,6 +30,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	system.SetFirewall(fw)
+	
 	fmt.Println("[OK] Model Firewall construido correctamente")
 	/*
 		fmt.Printf("Zonas: %d\n", len(fw.Zones))

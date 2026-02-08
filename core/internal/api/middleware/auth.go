@@ -49,5 +49,11 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 		ctx := context.WithValue(r.Context(), userContextKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
+
 	})
+}
+
+func UserFromContext(ctx context.Context) (*auth.Claims, bool) {
+	claims, ok := ctx.Value(userContextKey).(*auth.Claims)
+	return claims, ok
 }

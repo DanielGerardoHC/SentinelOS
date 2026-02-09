@@ -83,6 +83,13 @@ func StartAPIServer() {
 	),
 	)
 
+	mux.Handle(
+	 "/api/nat",
+	 middleware.JWTMiddleware(
+	    http.HandlerFunc(handlers.NatHandler),
+	),
+	)
+
 	log.Println("SentinelOS API listening on :8080")
 
 	// levantar servidor

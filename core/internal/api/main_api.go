@@ -48,6 +48,41 @@ func StartAPIServer() {
 	),
     )
 
+	mux.Handle(
+	"/api/routes",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.RoutesHandler),
+	),
+	)
+
+	mux.Handle(
+	"/api/policies",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.PoliciesHandler),
+	),
+	)
+   
+	mux.Handle(
+	"/api/zones",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.ZonesHandler),
+	),
+	)
+
+	mux.Handle(
+	"/api/vlans",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.VlansHandler),
+	),
+    )
+
+	mux.Handle(
+	"/api/dhcp",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.DhcpHandler),
+	),
+	)
+
 	log.Println("SentinelOS API listening on :8080")
 
 	// levantar servidor

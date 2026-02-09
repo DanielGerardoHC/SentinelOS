@@ -67,6 +67,10 @@ services:
     protocol: udp
     ports: [53]
 
+  - name: PING
+    protocol: icmp
+    ports: []
+
 dhcp:
   - interface: ens33
     start-ip: 10.20.10.20
@@ -92,7 +96,7 @@ routes:
     gateway: 172.16.0.1
     interface: ens32
     metric: 100
-    description: "Default route to internet"
+    description: "ISP-1"
 
 policies:
   - id: 1

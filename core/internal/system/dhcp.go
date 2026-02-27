@@ -11,13 +11,14 @@ type DhcpInfo struct {
 
 func GetDhcpInfo() ([]DhcpInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []DhcpInfo
 
-	for _, dhcp := range firewall.DHCPConfigs {
+	for _, dhcp := range fw.DHCPConfigs {
 		out = append(out, DhcpInfo{
 			Interfaces:   dhcp.Interface,
 			StartIP:      dhcp.StartIP,

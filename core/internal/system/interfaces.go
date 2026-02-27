@@ -14,13 +14,14 @@ type InterfaceInfo struct {
 
 func GetInterfaces() ([]InterfaceInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
+	fw := GetFirewall()
+	if fw == nil {
+	return nil, ErrFirewallNotInitialized
 	}
 
 	var out []InterfaceInfo
 
-	for _, iface := range firewall.Interfaces {
+	for _, iface := range fw.Interfaces {
 		out = append(out, InterfaceInfo{
 			Name:       iface.Name,
 			IP:         iface.IP,

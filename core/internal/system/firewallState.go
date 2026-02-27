@@ -1,4 +1,4 @@
-package system
+/*package system
 
 import "sentinelos/core/internal/model"
 
@@ -10,4 +10,20 @@ func SetFirewall(fw *model.Firewall) {
 
 func GetFirewall() *model.Firewall {
 	return firewall
+}
+*/
+
+package system
+
+import (
+	"sentinelos/core/internal/model"
+	"sentinelos/core/internal/system/config_engine"
+)
+
+func SetFirewall(fw *model.Firewall) {
+	config_engine.SetFirewall(fw)
+}
+
+func GetFirewall() *model.Firewall {
+	return config_engine.GetRunning()
 }

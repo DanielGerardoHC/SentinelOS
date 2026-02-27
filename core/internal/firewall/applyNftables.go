@@ -19,6 +19,7 @@ func GenerateRules(fw *model.Firewall) string {
 	sb.WriteString("    type filter hook input priority 0;\n")
 	sb.WriteString("    udp dport 67 accept\n")
 	sb.WriteString("    udp dport 68 accept\n")
+	sb.WriteString("    tcp dport 8080 accept\n") //HTTP
 	sb.WriteString("    policy drop;\n")
 
 	sb.WriteString("    ct state established,related accept\n")

@@ -49,6 +49,13 @@ func StartAPIServer() {
     )
 
 	mux.Handle(
+	"/api/interfaces/",
+	middleware.JWTMiddleware(
+		http.HandlerFunc(handlers.EditInterfaceHandler),
+	),
+	)
+
+	mux.Handle(
 	"/api/routes",
 	middleware.JWTMiddleware(
 		http.HandlerFunc(handlers.RoutesHandler),
@@ -88,6 +95,21 @@ func StartAPIServer() {
 	 middleware.JWTMiddleware(
 	    http.HandlerFunc(handlers.NatHandler),
 	),
+	)
+		// ================= CONFIG ENGINE =================
+
+	mux.Handle(
+		"/api/config/begin",
+		middleware.JWTMiddleware(
+			http.HandlerFunc(handlers.BeginConfigHandler),
+		),
+	)
+
+	mux.Handle(
+		"/api/config/commit",
+		middleware.JWTMiddleware(
+			http.HandlerFunc(handlers.CommitHandler),
+		),
 	)
 
 	log.Println("SentinelOS API listening on :8080")

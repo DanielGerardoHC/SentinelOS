@@ -12,13 +12,14 @@ type vlanInfo struct {
 
 func GetVlans() ([]vlanInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []vlanInfo
 
-	for _, vlan := range firewall.Vlans {
+	for _, vlan := range fw.Vlans {
 		out = append(out, vlanInfo{
 			ID:        vlan.ID,
 			Name:      vlan.Name,

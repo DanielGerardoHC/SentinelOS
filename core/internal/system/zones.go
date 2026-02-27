@@ -9,13 +9,14 @@ type ZoneInfo struct {
 
 func GetZones() ([]ZoneInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []ZoneInfo
 
-	for _, zone := range firewall.Zones {
+	for _, zone := range fw.Zones {
 		out = append(out, ZoneInfo{
 			Name:        zone.Name,
 			Networks:    zone.Networks,

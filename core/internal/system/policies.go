@@ -13,13 +13,14 @@ type PolicyInfo struct {
 
 func GetPolicies() ([]PolicyInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []PolicyInfo
 
-	for _, policy := range firewall.Policies {
+	for _, policy := range fw.Policies {
 
 		// Convertir services 
 		var services []string

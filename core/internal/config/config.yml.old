@@ -1,0 +1,118 @@
+zones:
+  - name: trust
+    type: l3
+    interfaces:
+      - ens33
+      - ens34
+      - ens35
+    networks:
+      - 10.20.10.0/24
+      - 10.20.20.0/24
+      - 10.20.15.0/24
+  - name: untrust
+    type: l3
+    interfaces:
+      - ens32
+
+interfaces:
+  - name: ens32
+    ip: 172.16.0.200/24
+    zone: untrust
+    state: up
+    management: [ping]
+  - name: ens33
+    ip: 10.20.10.1/24
+    zone: trust
+    state: up
+    management: [ping]
+  - name: ens34
+    ip: 10.20.20.1/24
+    zone: trust
+    state: up
+    management: [ping]
+  - name: ens35
+    ip:
+    zone: trust
+    state: up
+    management: [ping]
+
+vlans:
+  - name: ens35.10
+    parent: ens35
+    id: 10
+    ip: 10.20.15.1/24
+    state: up
+    zone: trust
+    management: [ping]
+
+addresses:
+  - name: SERVERS
+    ips:
+      - 10.0.0.0/24
+
+services:
+  - name: HTTP
+    protocol: tcp
+    ports: [80]
+
+  - name: QUIC
+    protocol: udp
+    ports: [443]
+
+  - name: HTTPS
+    protocol: tcp
+    ports: [443]
+
+  - name: DNS
+    protocol: udp
+    ports: [53]
+
+  - name: PING
+    protocol: icmp
+    ports: []
+
+dhcp:
+  - interface: ens33
+    start-ip: 10.20.10.20
+    end-ip: 10.20.10.200
+    gateway: 10.20.10.1
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    lease-time-min: 1000
+    
+  - interface: enp35.10
+    start-ip: 10.20.15.20
+    end-ip: 10.20.15.200
+    gateway: 10.20.15.1
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1 
+    lease-time-min: 1200 
+
+routes: 
+  - id: 1
+    destination: 0.0.0.0/0
+    gateway: 172.16.0.1
+    interface: ens32
+    metric: 100
+    description: "ISP-1"
+
+policies:
+  - id: 1
+    src-zone: any
+    dst-zone: untrust
+    src-addr: any
+    dst-addr: any
+    services: [HTTP, HTTPS, DNS, QUIC]
+    action: allow
+    log: true
+
+nat:
+  - id: 1
+    type: source
+    src-zone: trust
+    dst-zone: untrust
+    outInterface: ens32
+    action: masquerade
+    description: "Masquerade for trust to untrust"

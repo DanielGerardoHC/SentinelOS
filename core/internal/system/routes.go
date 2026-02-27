@@ -10,13 +10,14 @@ type RouteInfo struct {
 
 func GetRoutes() ([]RouteInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []RouteInfo
 
-	for _, route := range firewall.Routes {
+	for _, route := range fw.Routes {
 		out = append(out, RouteInfo{
 			Destination: route.Destination,
 			Gateway: route.Gateway,

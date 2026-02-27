@@ -11,13 +11,14 @@ type NatInfo struct {
 
 func GetNatRules() ([]NatInfo, error) {
 
-	if firewall == nil {
-		return nil, ErrFirewallNotInitialized
-	}
+fw := GetFirewall()
+if fw == nil {
+	return nil, ErrFirewallNotInitialized
+}
 
 	var out []NatInfo
 
-	for _, nat := range firewall.NATRules {
+	for _, nat := range fw.NATRules {
 		out = append(out, NatInfo{
 			ID: nat.ID,
 

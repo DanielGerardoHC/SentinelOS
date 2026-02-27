@@ -1,26 +1,31 @@
 package system
 
 func FirewallRunning() bool {
-	return firewall != nil
+	
+	fw := GetFirewall()
+	return fw != nil
 }
 
 func InterfacesCount() int {
-	if firewall == nil {
+	fw := GetFirewall()
+	if fw == nil {
 		return 0
 	}
-	return len(firewall.Interfaces)
+	return len(fw.Interfaces)
 }
 
 func RoutesCount() int {
-	if firewall == nil {
+	fw := GetFirewall()
+	if fw == nil {
 		return 0
 	}
-	return len(firewall.Routes)
+	return len(fw.Routes)
 }
 
 func DHCPRunning() bool {
-	if firewall == nil {
+	fw := GetFirewall()
+	if fw == nil {
 		return false
 	}
-	return len(firewall.DHCPConfigs) > 0
+	return len(fw.DHCPConfigs) > 0
 }

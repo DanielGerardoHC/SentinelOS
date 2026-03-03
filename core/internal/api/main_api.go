@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+
 	"sentinelos/core/internal/api/handlers"
 	"sentinelos/core/internal/api/middleware"
 	"sentinelos/core/internal/auth"
@@ -11,111 +14,62 @@ import (
 
 func StartAPIServer() {
 
-	// cargar usuarios
 	users, err := auth.LoadUsers("/srv/sentinelos/core/internal/auth/users.yml")
 	if err != nil {
 		log.Fatalf("error loading users: %v", err)
 	}
 
-	// crear authservice
 	authService := auth.NewAuthService(users)
 
-	// router
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	// ruta login
-	mux.HandleFunc("/api/login", handlers.LoginHandler(authService))
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
+	r.Use(chimiddleware.StripSlashes)
 
-	// ruta protegida /api/me
-	mux.Handle(
-		"/api/me",
-		middleware.JWTMiddleware(
-			http.HandlerFunc(handlers.MeHandler),
-		),
-	)
+	// ruta principal del API
+	r.Route("/api", func(api chi.Router) {
 
-	mux.Handle(
-	"/api/status",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.StatusHandler),
-	),
-    )
-    
-	mux.Handle(
-	"/api/interfaces",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.InterfacesHandler),
-	),
-    )
+		// public
+		api.Post("/login", handlers.LoginHandler(authService))
 
-	mux.Handle(
-	"/api/interfaces/",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.EditInterfaceHandler),
-	),
-	)
+		// protected
+		api.Group(func(protected chi.Router) {
 
-	mux.Handle(
-	"/api/routes",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.RoutesHandler),
-	),
-	)
+			protected.Use(middleware.JWTMiddleware)
 
-	mux.Handle(
-	"/api/policies",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.PoliciesHandler),
-	),
-	)
-   
-	mux.Handle(
-	"/api/zones",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.ZonesHandler),
-	),
-	)
+			protected.Get("/me", handlers.MeHandler)
+			protected.Get("/status", handlers.StatusHandler)
 
-	mux.Handle(
-	"/api/vlans",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.VlansHandler),
-	),
-    )
+			// interfaces
+			protected.Route("/interfaces", func(rt chi.Router) {
+				rt.Get("/", handlers.InterfacesHandler)
+				rt.Put("/{name}", handlers.EditInterfaceHandler)
+			})
 
-	mux.Handle(
-	"/api/dhcp",
-	middleware.JWTMiddleware(
-		http.HandlerFunc(handlers.DhcpHandler),
-	),
-	)
+			// routes
+			protected.Route("/routes", func(rt chi.Router) {
+				rt.Get("/", handlers.RoutesHandler)
+				rt.Post("/", handlers.CreateRouteHandler)
+				rt.Put("/{id}", handlers.EditRouteHandler)
+				rt.Delete("/{id}", handlers.DeleteRouteHandler)
+			})
 
-	mux.Handle(
-	 "/api/nat",
-	 middleware.JWTMiddleware(
-	    http.HandlerFunc(handlers.NatHandler),
-	),
-	)
-		// ================= CONFIG ENGINE =================
+			protected.Get("/policies", handlers.PoliciesHandler)
+			protected.Get("/zones", handlers.ZonesHandler)
+			protected.Get("/vlans", handlers.VlansHandler)
+			protected.Get("/dhcp", handlers.DhcpHandler)
+			protected.Get("/nat", handlers.NatHandler)
 
-	mux.Handle(
-		"/api/config/begin",
-		middleware.JWTMiddleware(
-			http.HandlerFunc(handlers.BeginConfigHandler),
-		),
-	)
-
-	mux.Handle(
-		"/api/config/commit",
-		middleware.JWTMiddleware(
-			http.HandlerFunc(handlers.CommitHandler),
-		),
-	)
+			// config engine
+			protected.Post("/config/begin", handlers.BeginConfigHandler)
+			protected.Post("/config/commit", handlers.CommitHandler)
+		})
+	})
 
 	log.Println("SentinelOS API listening on :8080")
 
-	// levantar servidor
-	err = http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatalf("server error: %v", err)
 	}

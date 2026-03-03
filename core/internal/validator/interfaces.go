@@ -1,9 +1,8 @@
-
 package validator
 
 import (
-	"net"
 	"fmt"
+	"net"
 	"sentinelos/core/internal/model"
 )
 
@@ -32,6 +31,20 @@ func ValidateInterfaces(fw *model.Firewall) error {
 			return fmt.Errorf("duplicate IP detected: %s", iface.IP)
 		}
 		seenIPs[iface.IP] = true
+	}
+	// Regla enterprise:
+	// Si una interfaz tiene VLANs asociadas, no puede tener IP
+	for _, vlan := range fw.Vlans {
+		parent := vlan.Parent
+
+		if parentIface, ok := fw.Interfaces[parent]; ok {
+			if parentIface.IP != "" {
+				return fmt.Errorf(
+					"interface %s has VLANs configured and cannot have IP assigned",
+					parent,
+				)
+			}
+		}
 	}
 
 	return nil

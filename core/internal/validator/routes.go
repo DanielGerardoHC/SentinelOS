@@ -4,11 +4,22 @@ import (
 	"fmt"
 	"net"
 	"sentinelos/core/internal/model"
+	"strings"
 )
 
 func ValidateRoutes(fw *model.Firewall) error {
 
 	for _, r := range fw.Routes {
+
+		dest := strings.TrimSpace(r.Destination)
+
+		if dest == "default" {
+			continue
+		}
+
+		if _, _, err := net.ParseCIDR(dest); err != nil {
+			return fmt.Errorf("invalid destination in route %d", r.ID)
+		}
 
 		if _, _, err := net.ParseCIDR(r.Destination); err != nil {
 			return fmt.Errorf("invalid destination in route %d", r.ID)

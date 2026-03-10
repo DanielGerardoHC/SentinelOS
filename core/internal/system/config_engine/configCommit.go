@@ -18,7 +18,7 @@ func Commit() error {
 
 	// Validate
 	if err := validator.ValidateFirewall(candidate); err != nil {
-		AbortConfig()
+		abortConfigLocked()
 		return err
 
 	}
@@ -26,14 +26,13 @@ func Commit() error {
 	// Backup
 	backup, err := CloneFirewall(running)
 	if err != nil {
-		AbortConfig()
+		abortConfigLocked()
 		return err
 	}
 
 	// Apply
 	if err := runtime.ApplyFullRuntime(candidate); err != nil {
 		_ = runtime.ApplyFullRuntime(backup)
-		AbortConfig()
 		return err
 	}
 
@@ -44,9 +43,7 @@ func Commit() error {
 		return err
 	}
 
-	candidate = nil
-	configLock.locked = false
-	configLock.owner = ""
+	abortConfigLocked()
 
 	return nil
 }

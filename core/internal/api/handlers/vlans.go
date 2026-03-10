@@ -110,3 +110,24 @@ func CreateVlanHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("vlan created in candidate"))
 }
+
+func DeleteVlanHandler(w http.ResponseWriter, r *http.Request) {
+
+	fw := config_engine.GetCandidate()
+	if fw == nil {
+		http.Error(w, "no active config session", 400)
+		return
+	}
+
+	vlanName := chi.URLParam(r, "name")
+
+	_, ok := fw.Vlans[vlanName]
+	if !ok {
+		http.Error(w, "interface not found", 404)
+		return
+	}
+
+	delete(fw.Vlans, vlanName)
+
+	w.Write([]byte("vlan deleted from candidate"))
+}

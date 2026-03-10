@@ -61,8 +61,17 @@ func StartAPIServer() {
 				rt.Get("/", handlers.VlansHandler)
 				rt.Post("/", handlers.CreateVlanHandler)
 				rt.Put("/{name}", handlers.EditVlanHandler)
+				rt.Delete("/{name}", handlers.DeleteVlanHandler)
 			})
 
+			// dhcp pools
+
+			protected.Route("/dhcp", func(rt chi.Router) {
+				rt.Get("/", handlers.DhcpHandler)
+				rt.Post("/", handlers.CreateDhcpHandler)
+				rt.Put("/{name}", handlers.EditDhcpHandler)
+				rt.Delete("/{name}", handlers.DeleteDhcpHandler)
+			})
 			protected.Get("/policies", handlers.PoliciesHandler)
 			protected.Get("/zones", handlers.ZonesHandler)
 			protected.Get("/dhcp", handlers.DhcpHandler)

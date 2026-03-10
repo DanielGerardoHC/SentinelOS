@@ -19,18 +19,21 @@ func Commit() error {
 	// Validate
 	if err := validator.ValidateFirewall(candidate); err != nil {
 		return err
+		AbortConfig()
 	}
 
 	// Backup
 	backup, err := CloneFirewall(running)
 	if err != nil {
 		return err
+		AbortConfig()
 	}
 
 	// Apply
 	if err := runtime.ApplyFullRuntime(candidate); err != nil {
 		_ = runtime.ApplyFullRuntime(backup)
 		return err
+		AbortConfig()
 	}
 
 	// Success

@@ -55,9 +55,16 @@ func StartAPIServer() {
 				rt.Delete("/{id}", handlers.DeleteRouteHandler)
 			})
 
+			// vlans
+
+			protected.Route("/vlans", func(rt chi.Router) {
+				rt.Get("/", handlers.VlansHandler)
+				rt.Post("/", handlers.CreateVlanHandler)
+				rt.Put("/{name}", handlers.EditVlanHandler)
+			})
+
 			protected.Get("/policies", handlers.PoliciesHandler)
 			protected.Get("/zones", handlers.ZonesHandler)
-			protected.Get("/vlans", handlers.VlansHandler)
 			protected.Get("/dhcp", handlers.DhcpHandler)
 			protected.Get("/nat", handlers.NatHandler)
 

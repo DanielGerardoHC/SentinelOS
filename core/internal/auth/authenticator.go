@@ -21,11 +21,11 @@ func (a *AuthService) Authenticate(username, password string) (*User, error) {
 		}
 
 		if err := CheckPassword(u.PasswordHash, password); err != nil {
-			return nil, errors.New("credenciales inválidas")
+			return nil, errors.New("")
 		}
 
 		return &u, nil
 	}
 
-	return nil, errors.New("usuario no existe")
+	return nil, errors.New(" - The user not exist")
 }

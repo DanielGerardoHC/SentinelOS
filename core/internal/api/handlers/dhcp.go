@@ -111,7 +111,7 @@ func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw.DHCPConfigs = append(fw.DHCPConfigs, dhcpPool)
 
-	w.Write([]byte("dhcp pool updated in candidate"))
+	w.Write([]byte("dhcp pool created in candidate"))
 }
 
 func DeleteDhcpHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,6 +143,6 @@ func DeleteDhcpHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw.DHCPConfigs = append(fw.DHCPConfigs[:index], fw.DHCPConfigs[index+1:]...)
 
-	w.Write([]byte("dhcp pool updated in candidate"))
+	w.Write([]byte("dhcp pool delete in candidate"))
 
 }

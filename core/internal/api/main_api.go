@@ -69,13 +69,21 @@ func StartAPIServer() {
 			protected.Route("/dhcp", func(rt chi.Router) {
 				rt.Get("/", handlers.DhcpHandler)
 				rt.Post("/", handlers.CreateDhcpHandler)
-				rt.Put("/{name}", handlers.EditDhcpHandler)
-				rt.Delete("/{name}", handlers.DeleteDhcpHandler)
+				rt.Put("/{interface}", handlers.EditDhcpHandler)
+				rt.Delete("/{interface}", handlers.DeleteDhcpHandler)
 			})
+
+			// NatRules
+
+			protected.Route("/nat", func(rt chi.Router) {
+				rt.Get("/", handlers.NatHandler)
+				rt.Post("/", handlers.CreateNatHandler)
+				rt.Put("/{id}", handlers.EditNatHandler)
+				rt.Delete("/{id}", handlers.DeleteNatHandler)
+			})
+
 			protected.Get("/policies", handlers.PoliciesHandler)
 			protected.Get("/zones", handlers.ZonesHandler)
-			protected.Get("/dhcp", handlers.DhcpHandler)
-			protected.Get("/nat", handlers.NatHandler)
 
 			// config engine
 			protected.Post("/config/begin", handlers.BeginConfigHandler)

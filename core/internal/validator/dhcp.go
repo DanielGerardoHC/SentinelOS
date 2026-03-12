@@ -6,12 +6,14 @@ import (
 	"sentinelos/core/internal/model"
 )
 
-
 func ValidateDHCP(fw *model.Firewall) error {
 
 	for _, d := range fw.DHCPConfigs {
 
-		if _, ok := fw.Interfaces[d.Interface]; !ok {
+		_, isIfc := fw.Interfaces[d.Interface]
+		_, isVlan := fw.Vlans[d.Interface]
+
+		if !isIfc && !isVlan {
 			return fmt.Errorf("dhcp references unknown interface %s", d.Interface)
 		}
 

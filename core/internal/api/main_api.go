@@ -82,8 +82,13 @@ func StartAPIServer() {
 				rt.Delete("/{id}", handlers.DeleteNatHandler)
 			})
 
+			protected.Route("/zones", func(rt chi.Router) {
+				rt.Get("/", handlers.ZonesHandler)
+				rt.Post("/", handlers.CreateZoneHandler)
+				rt.Put("/{name}", handlers.EditZoneHandler)
+				rt.Delete("/{name}", handlers.DeleteZoneHandler)
+			})
 			protected.Get("/policies", handlers.PoliciesHandler)
-			protected.Get("/zones", handlers.ZonesHandler)
 
 			// config engine
 			protected.Post("/config/begin", handlers.BeginConfigHandler)

@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"sentinelos/core/internal/auth"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+
+	"sentinelos/core/internal/auth"
+	"sentinelos/core/pkg/utils"
 )
 
 type contextKey string
@@ -19,13 +21,13 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "missing token", http.StatusUnauthorized)
+			utils.SendError(w, http.StatusUnauthorized, "ERR_SEC_5001", "Missing authorization token", "")
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, "invalid token format", http.StatusUnauthorized)
+			utils.SendError(w, http.StatusUnauthorized, "ERR_SEC_5002", "Invalid token format", "expected Bearer token")
 			return
 		}
 
@@ -34,7 +36,6 @@ func JWTMiddleware(next http.Handler) http.Handler {
 		claims := &auth.Claims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 
-			// Validar algoritmo
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
@@ -43,7 +44,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "invalid token", http.StatusUnauthorized)
+			utils.SendError(w, http.StatusUnauthorized, "ERR_SEC_5003", "Invalid or expired token", err.Error())
 			return
 		}
 

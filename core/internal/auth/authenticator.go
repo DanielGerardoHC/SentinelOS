@@ -1,6 +1,8 @@
 package auth
 
-import "errors"
+import (
+	"sentinelos/core/pkg/utils"
+)
 
 type AuthService struct {
 	users *UsersFile
@@ -17,15 +19,15 @@ func (a *AuthService) Authenticate(username, password string) (*User, error) {
 		}
 
 		if !u.Enabled {
-			return nil, errors.New("usuario deshabilitado")
+			return nil, &utils.APIError{Code: "ERR_SEC_5004", Message: "User account disabled"}
 		}
 
 		if err := CheckPassword(u.PasswordHash, password); err != nil {
-			return nil, errors.New("")
+			return nil, &utils.APIError{Code: "ERR_SEC_5005", Message: "Invalid credentials"}
 		}
 
 		return &u, nil
 	}
 
-	return nil, errors.New(" - The user not exist")
+	return nil, &utils.APIError{Code: "ERR_SEC_5005", Message: "Invalid credentials"}
 }

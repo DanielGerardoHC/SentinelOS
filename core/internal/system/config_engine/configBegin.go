@@ -1,19 +1,30 @@
 package config_engine
 
-import "errors"
+import (
+	"fmt"
+
+	"sentinelos/core/pkg/utils"
+)
 
 func BeginConfig(username string) error {
-
 	configLock.Lock()
 	defer configLock.Unlock()
 
 	if configLock.locked {
-		return errors.New("config already locked by " + configLock.owner)
+		return &utils.APIError{
+			Code:    "ERR_SYS_3002",
+			Message: "Config already locked by another user",
+			Details: fmt.Sprintf("owner: %s", configLock.owner),
+		}
 	}
 
 	clone, err := CloneFirewall(running)
 	if err != nil {
-		return err
+		return &utils.APIError{
+			Code:    "ERR_SYS_4003",
+			Message: "Failed to create config backup",
+			Details: err.Error(),
+		}
 	}
 
 	candidate = clone

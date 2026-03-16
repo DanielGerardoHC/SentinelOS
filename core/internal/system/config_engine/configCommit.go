@@ -5,6 +5,7 @@ import (
 
 	"sentinelos/core/internal/runtime"
 	"sentinelos/core/internal/validator"
+	"sentinelos/core/pkg/utils"
 )
 
 func Commit() error {
@@ -27,13 +28,14 @@ func Commit() error {
 	backup, err := CloneFirewall(running)
 	if err != nil {
 		abortConfigLocked()
-		return err
+
+		return &utils.APIError{Code: "ERR_SYS_4003", Message: "Failed to create config backup", Details: err.Error()}
 	}
 
 	// Apply
 	if err := runtime.ApplyFullRuntime(candidate); err != nil {
 		_ = runtime.ApplyFullRuntime(backup)
-		return err
+		return &utils.APIError{Code: "ERR_SYS_4002", Message: "Failed to apply runtime configuration", Details: err.Error()}
 	}
 
 	// Success

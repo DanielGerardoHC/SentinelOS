@@ -3,19 +3,19 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"sentinelos/core/internal/model"
-	"sentinelos/core/internal/system/config_engine"
-
-	"sentinelos/core/internal/system"
 
 	"github.com/go-chi/chi/v5"
+
+	"sentinelos/core/internal/model"
+	"sentinelos/core/internal/system"
+	"sentinelos/core/internal/system/config_engine"
+	"sentinelos/core/pkg/utils"
 )
 
 func DhcpHandler(w http.ResponseWriter, r *http.Request) {
-
 	dhcp, err := system.GetDhcpInfo()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
 	}
 
@@ -26,13 +26,13 @@ func DhcpHandler(w http.ResponseWriter, r *http.Request) {
 func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
 	ifaceName := chi.URLParam(r, "interface")
 	if ifaceName == "" {
-		http.Error(w, "invalid interface", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Missing required field", "missing interface name in URL")
 		return
 	}
 
@@ -43,8 +43,9 @@ func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+
 	if dhcpPool == nil {
-		http.Error(w, "dhcp config not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "dhcp pool for interface "+ifaceName)
 		return
 	}
 
@@ -55,8 +56,9 @@ func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 		Dns        []string `json:"dns"`
 		Lease_time int      `json:"lease_time"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -69,20 +71,21 @@ func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	if req.Gateway != "" {
 		dhcpPool.Gateway = req.Gateway
 	}
-	if req.Dns == nil || len(req.Dns) == 0 {
+	if req.Dns != nil || len(req.Dns) != 0 {
 		dhcpPool.DNS = req.Dns
 	}
-	if req.Lease_time == 0 {
+	if req.Lease_time != 0 {
 		dhcpPool.LeaseTimeMin = req.Lease_time
 	}
 
-	w.Write([]byte("dhcp pool updated in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "dhcp pool updated in candidate"}`))
 }
 
 func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
@@ -96,7 +99,7 @@ func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -111,19 +114,20 @@ func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw.DHCPConfigs = append(fw.DHCPConfigs, dhcpPool)
 
-	w.Write([]byte("dhcp pool created in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "dhcp pool created in candidate"}`))
 }
 
 func DeleteDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
 	ifaceName := chi.URLParam(r, "interface")
 	if ifaceName == "" {
-		http.Error(w, "invalid interface", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Missing required field", "missing interface name in URL")
 		return
 	}
 
@@ -136,13 +140,14 @@ func DeleteDhcpHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+
 	if dhcpPool == nil {
-		http.Error(w, "dhcp config not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "dhcp pool for interface "+ifaceName)
 		return
 	}
 
 	fw.DHCPConfigs = append(fw.DHCPConfigs[:index], fw.DHCPConfigs[index+1:]...)
 
-	w.Write([]byte("dhcp pool delete in candidate"))
-
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "dhcp pool deleted in candidate"}`))
 }

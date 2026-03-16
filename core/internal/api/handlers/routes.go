@@ -10,13 +10,13 @@ import (
 	"sentinelos/core/internal/model"
 	"sentinelos/core/internal/system"
 	"sentinelos/core/internal/system/config_engine"
+	"sentinelos/core/pkg/utils"
 )
 
 func RoutesHandler(w http.ResponseWriter, r *http.Request) {
-
 	routes, err := system.GetRoutes()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
 	}
 
@@ -25,17 +25,16 @@ func RoutesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
-
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid route id", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid or missing ID", "invalid route id format")
 		return
 	}
 
@@ -48,7 +47,7 @@ func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if route == nil {
-		http.Error(w, "route not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "route ID "+idStr)
 		return
 	}
 
@@ -61,7 +60,7 @@ func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -81,14 +80,14 @@ func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 		route.Description = req.Description
 	}
 
-	w.Write([]byte("route updated in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "route updated in candidate"}`))
 }
 
 func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
-
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
@@ -101,7 +100,7 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -118,27 +117,26 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw.Routes = append(fw.Routes, route)
 
-	w.Write([]byte("route created in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "route created in candidate"}`))
 }
 
 func DeleteRouteHandler(w http.ResponseWriter, r *http.Request) {
-
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
-	// obtener id desde la URL
 	idParam := chi.URLParam(r, "id")
 	if idParam == "" {
-		http.Error(w, "missing route id", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Missing required field", "missing route id in URL")
 		return
 	}
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "invalid route id", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid or missing ID", "invalid route id format")
 		return
 	}
 
@@ -151,12 +149,12 @@ func DeleteRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if index == -1 {
-		http.Error(w, "route not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "route ID "+idParam)
 		return
 	}
 
-	// eliminar del slice
 	fw.Routes = append(fw.Routes[:index], fw.Routes[index+1:]...)
 
-	w.Write([]byte("route deleted from candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "route deleted from candidate"}`))
 }

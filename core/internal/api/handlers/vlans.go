@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"sentinelos/core/internal/model"
-	"sentinelos/core/internal/system/config_engine"
-
 	"sentinelos/core/internal/system"
+	"sentinelos/core/internal/system/config_engine"
+	"sentinelos/core/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -15,7 +15,7 @@ func VlansHandler(w http.ResponseWriter, r *http.Request) {
 
 	vlans, err := system.GetVlans()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
 	}
 
@@ -26,7 +26,7 @@ func VlansHandler(w http.ResponseWriter, r *http.Request) {
 func EditVlanHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
@@ -34,7 +34,7 @@ func EditVlanHandler(w http.ResponseWriter, r *http.Request) {
 
 	vlan, ok := fw.Vlans[vlanName]
 	if !ok {
-		http.Error(w, "interface not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "vlan "+vlanName)
 		return
 	}
 
@@ -48,7 +48,7 @@ func EditVlanHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -71,13 +71,14 @@ func EditVlanHandler(w http.ResponseWriter, r *http.Request) {
 		vlan.Management = req.Management
 	}
 
-	w.Write([]byte("vlan updated in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "vlan updated in candidate"}`))
 }
 
 func CreateVlanHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
@@ -92,7 +93,7 @@ func CreateVlanHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid json", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 		return
 	}
 
@@ -106,16 +107,21 @@ func CreateVlanHandler(w http.ResponseWriter, r *http.Request) {
 		Management: req.Management,
 	}
 
+	if fw.Vlans == nil {
+		fw.Vlans = make(map[string]*model.Vlan)
+	}
+
 	fw.Vlans[vlan.Name] = vlan
 
-	w.Write([]byte("vlan created in candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "vlan created in candidate"}`))
 }
 
 func DeleteVlanHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw := config_engine.GetCandidate()
 	if fw == nil {
-		http.Error(w, "no active config session", 400)
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
 		return
 	}
 
@@ -123,11 +129,12 @@ func DeleteVlanHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, ok := fw.Vlans[vlanName]
 	if !ok {
-		http.Error(w, "interface not found", 404)
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "vlan "+vlanName)
 		return
 	}
 
 	delete(fw.Vlans, vlanName)
 
-	w.Write([]byte("vlan deleted from candidate"))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "vlan deleted from candidate"}`))
 }

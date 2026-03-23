@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-
 	"sentinelos/core/internal/system"
 	"sentinelos/core/internal/system/config_engine"
 	"sentinelos/core/pkg/utils"
@@ -12,7 +11,19 @@ import (
 )
 
 func InterfacesHandler(w http.ResponseWriter, r *http.Request) {
-	ifaces, err := system.GetInterfaces()
+	layerFilter := r.URL.Query().Get("layer")
+
+	var ifaces []system.InterfaceInfo
+	var err error
+
+	if layerFilter == "3" {
+		ifaces, err = system.GetInterfacesL3()
+	} else if layerFilter == "2" {
+		ifaces, err = system.GetInterfacesL2()
+	} else {
+		ifaces, err = system.GetInterfaces()
+	}
+
 	if err != nil {
 		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
@@ -49,11 +60,25 @@ func EditInterfaceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Zone != "" && req.Zone != iface.Zone {
+		newZone, exists := fw.Zones[req.Zone]
+		if !exists {
+			utils.SendError(w, http.StatusBadRequest, "ERR_NET_2003", "Zone does not exist", req.Zone)
+			return
+		}
+
+		if iface.Zone != "" {
+			if oldZone, oldExists := fw.Zones[iface.Zone]; oldExists {
+				removeInterfaceFromZone(oldZone, ifaceName)
+			}
+		}
+
+		addInterfaceToZone(newZone, ifaceName)
+		iface.Zone = req.Zone
+	}
+
 	if req.IP != "" {
 		iface.IP = req.IP
-	}
-	if req.Zone != "" {
-		iface.Zone = req.Zone
 	}
 	if req.State != "" {
 		iface.State = req.State
@@ -62,7 +87,6 @@ func EditInterfaceHandler(w http.ResponseWriter, r *http.Request) {
 		iface.Management = req.Management
 	}
 
-	// buena practica devolver JSON en los casos de exito
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "interface updated in candidate"}`))
 }

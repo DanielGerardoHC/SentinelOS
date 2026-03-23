@@ -3,9 +3,10 @@ package config_engine
 import (
 	"os"
 
-	"gopkg.in/yaml.v3"
 	"sentinelos/core/internal/config"
 	"sentinelos/core/internal/model"
+
+	"gopkg.in/yaml.v3"
 )
 
 func SaveYAML(fw *model.Firewall) error {
@@ -17,11 +18,13 @@ func SaveYAML(fw *model.Firewall) error {
 		raw.Zones = append(raw.Zones, struct {
 			Name       string   `yaml:"name"`
 			Type       string   `yaml:"type"`
+			Color      string   `yaml:"color"`
 			Interfaces []string `yaml:"interfaces"`
 			Networks   []string `yaml:"networks"`
 		}{
 			Name:       z.Name,
 			Type:       string(z.Type),
+			Color:      z.Color,
 			Interfaces: z.Interfaces,
 			Networks:   z.Networks,
 		})

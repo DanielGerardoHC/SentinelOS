@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"sentinelos/core/internal/model"
+	"sentinelos/core/internal/system"
 	"sentinelos/core/internal/system/config_engine"
 	"sentinelos/core/pkg/utils"
-
-	"sentinelos/core/internal/system"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -16,7 +15,7 @@ func ZonesHandler(w http.ResponseWriter, r *http.Request) {
 
 	zones, err := system.GetZones()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
 	}
 
@@ -34,6 +33,7 @@ func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name       string   `json:"name"`
 		Type       string   `json:"type"`
+		Color      string   `json:"color"`
 		Interfaces []string `json:"interfaces"`
 		Networks   []string `json:"networks"`
 	}
@@ -61,6 +61,7 @@ func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 		Name:       req.Name,
 		Interfaces: req.Interfaces,
 		Networks:   req.Networks,
+		Color:      req.Color,
 	}
 
 	if req.Type != "" {
@@ -73,6 +74,16 @@ func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fw.Zones[req.Name] = zone
+
+	for _, ifaceName := range req.Interfaces {
+		oldZoneName := getInterfaceZone(fw, ifaceName)
+		if oldZoneName != "" && oldZoneName != req.Name {
+			if oldZone, ok := fw.Zones[oldZoneName]; ok {
+				removeInterfaceFromZoneList(oldZone, ifaceName)
+			}
+		}
+		updateInterfaceZoneProp(fw, ifaceName, req.Name)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "zone added in candidate"}`))
@@ -99,6 +110,7 @@ func EditZoneHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req struct {
 		Type       string   `json:"type"`
+		Color      string   `json:"color"`
 		Interfaces []string `json:"interfaces"`
 		Networks   []string `json:"networks"`
 	}
@@ -118,7 +130,39 @@ func EditZoneHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Interfaces != nil {
+		oldMap := make(map[string]bool)
+		for _, oldIface := range zone.Interfaces {
+			oldMap[oldIface] = true
+		}
+
+		newMap := make(map[string]bool)
+		for _, newIface := range req.Interfaces {
+			newMap[newIface] = true
+		}
+
+		for oldIface := range oldMap {
+			if !newMap[oldIface] {
+				updateInterfaceZoneProp(fw, oldIface, "")
+			}
+		}
+
+		for newIface := range newMap {
+			if !oldMap[newIface] {
+				oldZoneName := getInterfaceZone(fw, newIface)
+				if oldZoneName != "" && oldZoneName != nameParam {
+					if oldZone, ok := fw.Zones[oldZoneName]; ok {
+						removeInterfaceFromZoneList(oldZone, newIface)
+					}
+				}
+				updateInterfaceZoneProp(fw, newIface, nameParam)
+			}
+		}
+
 		zone.Interfaces = req.Interfaces
+	}
+
+	if req.Color != "" {
+		zone.Color = req.Color
 	}
 
 	if req.Networks != nil {
@@ -142,13 +186,51 @@ func DeleteZoneHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, exists := fw.Zones[nameParam]; !exists {
+	zone, exists := fw.Zones[nameParam]
+	if !exists {
 		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Resource not found", "zone "+nameParam)
 		return
+	}
+
+	for _, ifaceName := range zone.Interfaces {
+		updateInterfaceZoneProp(fw, ifaceName, "")
 	}
 
 	delete(fw.Zones, nameParam)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "zone deleted in candidate"}`))
+}
+
+func getInterfaceZone(fw *model.Firewall, ifaceName string) string {
+	if iface, ok := fw.Interfaces[ifaceName]; ok {
+		return iface.Zone
+	}
+	if vlan, ok := fw.Vlans[ifaceName]; ok {
+		return vlan.Zone
+	}
+	return ""
+}
+
+func updateInterfaceZoneProp(fw *model.Firewall, ifaceName string, newZone string) {
+	if iface, ok := fw.Interfaces[ifaceName]; ok {
+		iface.Zone = newZone
+		return
+	}
+	if vlan, ok := fw.Vlans[ifaceName]; ok {
+		vlan.Zone = newZone
+		return
+	}
+}
+
+func removeInterfaceFromZoneList(zone *model.Zone, ifaceName string) {
+	if zone == nil {
+		return
+	}
+	for i, name := range zone.Interfaces {
+		if name == ifaceName {
+			zone.Interfaces = append(zone.Interfaces[:i], zone.Interfaces[i+1:]...)
+			break
+		}
+	}
 }

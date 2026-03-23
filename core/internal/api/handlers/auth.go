@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"sentinelos/core/internal/auth"
+	"sentinelos/core/pkg/utils"
 )
 
 type LoginRequest struct {
@@ -19,27 +21,31 @@ type LoginResponse struct {
 
 func LoginHandler(authService *auth.AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		if r.Method != http.MethodPost {
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			utils.SendError(w, http.StatusMethodNotAllowed, "ERR_NET_1009", "Method not allowed", "use POST")
 			return
 		}
 
 		var req LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "invalid json", http.StatusBadRequest)
+			utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
 			return
 		}
 
 		user, err := authService.Authenticate(req.Username, req.Password)
 		if err != nil {
-			http.Error(w, "invalid credentials"+err.Error(), http.StatusUnauthorized)
+			var apiErr *utils.APIError
+			if errors.As(err, &apiErr) {
+				utils.SendError(w, http.StatusUnauthorized, apiErr.Code, apiErr.Message, apiErr.Details)
+			} else {
+				utils.SendError(w, http.StatusUnauthorized, "ERR_SEC_5005", "Invalid credentials", err.Error())
+			}
 			return
 		}
 
 		token, expires, err := auth.GenerateJWT(user)
 		if err != nil {
-			http.Error(w, "token error", http.StatusInternalServerError)
+			utils.SendError(w, http.StatusInternalServerError, "ERR_SEC_5006", "Failed to generate token", err.Error())
 			return
 		}
 

@@ -18,8 +18,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		NATRules:   []*model.NATRule{},
 	}
 
-	// pasos:
-	// 1. zonas
+	// 1 zonas
 	for _, z := range raw.Zones {
 		if z.Name == "" {
 			return nil, fmt.Errorf("zona sin nombre")
@@ -27,6 +26,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		zone := &model.Zone{
 			Name:       z.Name,
+			Color:      z.Color,
 			Type:       model.ZoneType(z.Type),
 			Interfaces: z.Interfaces,
 			Networks:   z.Networks,
@@ -34,7 +34,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		fw.Zones[z.Name] = zone
 	}
-	// 2. interfaces
+	// 2 interfaces
 	for _, i := range raw.Interfaces {
 
 		iface := &model.Interface{
@@ -63,7 +63,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		fw.Vlans[v.Name] = vlan
 	}
-	// 3. addresses
+	// 3 addresses
 
 	for _, a := range raw.Addresses {
 
@@ -81,7 +81,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 
 		fw.Addresses[a.Name] = addr
 	}
-	// 4. services
+	// 4 services
 
 	for _, s := range raw.Services {
 
@@ -94,7 +94,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.Services[s.Name] = svc
 	}
 
-	// Routes
+	// 5 Routes
 
 	for _, r := range raw.Route {
 		route := &model.Route{
@@ -108,7 +108,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.Routes = append(fw.Routes, route)
 	}
 
-	// 5. policies
+	// 6 policies
 
 	for _, p := range raw.Policies {
 
@@ -116,7 +116,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		dstZone := fw.Zones[p.DstZone]
 		srcAddr := fw.Addresses[p.SrcAddr]
 		dstAddr := fw.Addresses[p.DstAddr]
-		
+
 		/*	if srcZone == nil || dstZone == nil {
 				return nil, fmt.Errorf("policy %d referencia zonas inválidas", p.ID)
 			}
@@ -144,7 +144,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.Policies = append(fw.Policies, policy)
 	}
 
-	// Nat rules
+	// 7 Nat rules
 	for _, n := range raw.NATRules {
 		srcZone := fw.Zones[n.SrcZone]
 		dstZone := fw.Zones[n.DstZone]
@@ -166,7 +166,7 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 		fw.NATRules = append(fw.NATRules, natRule)
 	}
 
-	// dhcp rules
+	// 8 dhcp rules
 	for _, d := range raw.DHCP {
 		dhcp := &model.DHCP{
 			Interface:    d.Interface,

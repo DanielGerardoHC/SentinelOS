@@ -10,6 +10,7 @@ type RawConfig struct {
 	Zones []struct {
 		Name       string   `yaml:"name"`
 		Type       string   `yaml:"type"`
+		Color      string   `yaml:"color"`
 		Interfaces []string `yaml:"interfaces"`
 		Networks   []string `yaml:"networks"`
 	} `yaml:"zones"`

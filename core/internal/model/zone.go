@@ -10,6 +10,7 @@ const (
 type Zone struct {
 	Name       string
 	Type       ZoneType
+	Color      string
 	Interfaces []string
 	Networks   []string
 }

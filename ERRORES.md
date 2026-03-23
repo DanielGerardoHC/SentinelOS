@@ -34,22 +34,23 @@ Todos los errores siguen el formato estructurado: **`ERR_[CATEGORÍA]_[TIPO][COR
 | **ERR_NET_1006** | `Invalid protocol` | El protocolo especificado no es válido. Solo se permite tcp o udp. | `protocol: icmp` |
 | **ERR_NET_1007** | `Invalid subnet mask` | La máscara de red proporcionada no es válida para el formato IPv4 (ej. no es de 32 bits). | `invalid mask in address LAN_NET` |
 | **ERR_NET_1008** | `Invalid port number` | El puerto especificado está fuera del rango válido (1-65535) o es <= 0. | `invalid port in service HTTP` |
+| **ERR_NET_1009** | `Method not allowed` | Se intentó acceder a un endpoint con un verbo HTTP incorrecto, ej. usar GET en lugar de POST. | -                         |
 ---
 
 ## Categoría: SEC (Security & NAT)
 *Incluye: Reglas NAT, Políticas de Firewall, Filtros.*
 
-| Código | Mensaje Base (Inglés) | Definición / Causa | Ejemplo de `details` |
-| :--- | :--- | :--- | :--- |
-| **ERR_SEC_1001** | `Invalid NAT action` | La acción enviada no está soportada. Solo se permite masquerade, snat o dnat. | `action: drop` |
-| **ERR_SEC_1002** | `Invalid policy action` | La acción de la política no es reconocida. Solo se permite allow o deny. | `action: bypass` |
-| **ERR_SEC_5001** | `Missing authorization token` | La petición no incluye el header de Authorization con el token JWT. | - |
-| **ERR_SEC_5002** | `Invalid token format` | El header de Authorization no cumple con el esquema 'Bearer <token>'. | `expected Bearer token` |
+| Código | Mensaje Base (Inglés) | Definición / Causa | Ejemplo de `details`      |
+| :--- | :--- | :--- |:--------------------------|
+| **ERR_SEC_1001** | `Invalid NAT action` | La acción enviada no está soportada. Solo se permite masquerade, snat o dnat. | `action: drop`            |
+| **ERR_SEC_1002** | `Invalid policy action` | La acción de la política no es reconocida. Solo se permite allow o deny. | `action: bypass`          |
+| **ERR_SEC_5001** | `Missing authorization token` | La petición no incluye el header de Authorization con el token JWT. | -                         |
+| **ERR_SEC_5002** | `Invalid token format` | El header de Authorization no cumple con el esquema 'Bearer <token>'. | `expected Bearer token`   |
 | **ERR_SEC_5003** | `Invalid or expired token` | El token JWT no superó la validación criptográfica o su tiempo de vida expiró. | `token is expired by 10m` |
-| **ERR_SEC_5004** | `User account disabled` | Intento de login de un usuario que existe pero tiene la bandera Enabled en false. | - |
-| **ERR_SEC_5005** | `Invalid credentials` | Las credenciales no coinciden o el usuario no existe en la base de datos local. | - |
-| **ERR_SEC_2001** | `Invalid policy reference` | La política hace referencia a un objeto nulo o inválido en la memoria. | `policy has nil service` |
-
+| **ERR_SEC_5004** | `User account disabled` | Intento de login de un usuario que existe pero tiene la bandera Enabled en false. | -                         |
+| **ERR_SEC_5005** | `Invalid credentials` | Las credenciales no coinciden o el usuario no existe en la base de datos local. | -                         |
+| **ERR_SEC_2001** | `Invalid policy reference` | La política hace referencia a un objeto nulo o inválido en la memoria. | `policy has nil service`  |
+| **ERR_SEC_5006** | `Failed to generate token` | Error interno del servidor al intentar firmar criptográficamente el JWT. |  |
 ---
 
 ## Categoría: SYS (System & Transaction)

@@ -263,3 +263,86 @@ func DeletePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "policy deleted from candidate"}`))
 }
+
+func MovePolicyHandler(w http.ResponseWriter, r *http.Request) {
+	fw := config_engine.GetCandidate()
+	if fw == nil {
+		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
+		return
+	}
+
+	idStr := chi.URLParam(r, "id")
+	targetID, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid ID", "invalid policy id format")
+		return
+	}
+
+	var req struct {
+		Position    string `json:"position"`
+		ReferenceID int    `json:"reference_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
+		return
+	}
+
+	srcIndex := -1
+	for i, p := range fw.Policies {
+		if p.ID == targetID {
+			srcIndex = i
+			break
+		}
+	}
+
+	if srcIndex == -1 {
+		utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "Policy not found", "")
+		return
+	}
+
+	policyToMove := fw.Policies[srcIndex]
+	fw.Policies = append(fw.Policies[:srcIndex], fw.Policies[srcIndex+1:]...)
+
+	var insertIndex int
+
+	switch req.Position {
+	case "top":
+		insertIndex = 0
+	case "bottom":
+		insertIndex = len(fw.Policies)
+	case "before", "after":
+
+		refIndex := -1
+		for i, p := range fw.Policies {
+			if p.ID == req.ReferenceID {
+				refIndex = i
+				break
+			}
+		}
+
+		if refIndex == -1 {
+			utils.SendError(w, http.StatusBadRequest, "ERR_NET_1005", "Reference policy not found", "")
+			return
+		}
+
+		if req.Position == "before" {
+			insertIndex = refIndex
+		} else {
+			insertIndex = refIndex + 1
+		}
+	default:
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1006", "Invalid position parameter", "Use top, bottom, before, or after")
+		return
+	}
+
+	newPolicies := make([]*model.Policy, 0, len(fw.Policies)+1)
+	newPolicies = append(newPolicies, fw.Policies[:insertIndex]...)
+	newPolicies = append(newPolicies, policyToMove)
+	newPolicies = append(newPolicies, fw.Policies[insertIndex:]...)
+
+	fw.Policies = newPolicies
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"message": "policy moved successfully"}`))
+}

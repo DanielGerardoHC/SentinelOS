@@ -21,8 +21,10 @@ func ValidateZones(fw *model.Firewall) error {
 		seen[z.Name] = true
 
 		for _, iface := range z.Interfaces {
-			if _, ok := fw.Interfaces[iface]; !ok {
-				return &utils.APIError{Code: "ERR_NET_2003", Message: "Resource references unknown entity", Details: fmt.Sprintf("zone %s references unknown interface %s", z.Name, iface)}
+			_, isIface := fw.Interfaces[iface]
+			_, isVlan := fw.Vlans[iface]
+			if !isIface && !isVlan {
+				return &utils.APIError{Code: "ERR_NET_2003", Message: "Resource references unknown entity", Details: fmt.Sprintf("zone %s references unknown interface or vlan %s", z.Name, iface)}
 			}
 		}
 	}

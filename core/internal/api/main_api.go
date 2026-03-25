@@ -41,21 +41,17 @@ func StartAPIServer() {
 			protected.Get("/me", handlers.MeHandler)
 			protected.Get("/status", handlers.StatusHandler)
 
-			// interfaces
 			protected.Route("/interfaces", func(rt chi.Router) {
 				rt.Get("/", handlers.InterfacesHandler)
 				rt.Put("/{name}", handlers.EditInterfaceHandler)
 			})
 
-			// routes
 			protected.Route("/routes", func(rt chi.Router) {
 				rt.Get("/", handlers.RoutesHandler)
 				rt.Post("/", handlers.CreateRouteHandler)
 				rt.Put("/{id}", handlers.EditRouteHandler)
 				rt.Delete("/{id}", handlers.DeleteRouteHandler)
 			})
-
-			// vlans
 
 			protected.Route("/vlans", func(rt chi.Router) {
 				rt.Get("/", handlers.VlansHandler)
@@ -64,16 +60,12 @@ func StartAPIServer() {
 				rt.Delete("/{name}", handlers.DeleteVlanHandler)
 			})
 
-			// dhcp pools
-
 			protected.Route("/dhcp", func(rt chi.Router) {
 				rt.Get("/", handlers.DhcpHandler)
 				rt.Post("/", handlers.CreateDhcpHandler)
 				rt.Put("/{interface}", handlers.EditDhcpHandler)
 				rt.Delete("/{interface}", handlers.DeleteDhcpHandler)
 			})
-
-			// NatRules
 
 			protected.Route("/nat", func(rt chi.Router) {
 				rt.Get("/", handlers.NatHandler)
@@ -88,7 +80,28 @@ func StartAPIServer() {
 				rt.Put("/{name}", handlers.EditZoneHandler)
 				rt.Delete("/{name}", handlers.DeleteZoneHandler)
 			})
-			protected.Get("/policies", handlers.PoliciesHandler)
+
+			protected.Route("/services", func(rt chi.Router) {
+				rt.Get("/", handlers.ServicesHandler)
+				rt.Post("/", handlers.CreateServiceHandler)
+				rt.Put("/{name}", handlers.EditServiceHandler)
+				rt.Delete("/{name}", handlers.DeleteServiceHandler)
+			})
+
+			protected.Route("/addresses", func(rt chi.Router) {
+				rt.Get("/", handlers.AddressesHandler)
+				rt.Post("/", handlers.CreateAddressHandler)
+				rt.Put("/{name}", handlers.EditAddressHandler)
+				rt.Delete("/{name}", handlers.DeleteAddressHandler)
+			})
+
+			protected.Route("/policies", func(rt chi.Router) {
+				rt.Get("/", handlers.PoliciesHandler)
+				rt.Post("/", handlers.CreatePolicyHandler)
+				rt.Post("/{id}/move", handlers.MovePolicyHandler)
+				rt.Put("/{id}", handlers.EditPolicyHandler)
+				rt.Delete("/{id}", handlers.DeletePolicyHandler)
+			})
 
 			// config engine
 			protected.Post("/config/begin", handlers.BeginConfigHandler)

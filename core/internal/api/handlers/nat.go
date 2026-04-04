@@ -14,13 +14,12 @@ import (
 )
 
 func NatHandler(w http.ResponseWriter, r *http.Request) {
-
-	natRules, err := system.GetNatRules()
+	actionFilter := r.URL.Query().Get("type")
+	natRules, err := system.GetNatRules(actionFilter)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.SendError(w, http.StatusInternalServerError, "ERR_SYS_4001", "Internal server error", err.Error())
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(natRules)
 }
@@ -33,11 +32,16 @@ func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		SrcZone      string `json:"src-zone"`
-		DstZone      string `json:"dst-zone"`
-		OutInterface string `json:"out-interface"`
-		Action       string `json:"action"`
-		Description  string `json:"description"`
+		Type           string `json:"type"`
+		SrcZone        string `json:"src-zone"`
+		DstZone        string `json:"dst-zone"`
+		SrcAddress     string `json:"src-addr"`
+		DstAddress     string `json:"dst-addr"`
+		Service        string `json:"service"`
+		OutInterface   string `json:"out-interface"`
+		TranslatedIP   string `json:"translated-ip"`
+		TranslatedPort string `json:"translated-port"`
+		Description    string `json:"description"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -45,15 +49,28 @@ func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+	natType := model.NATType(req.Type)
+	if natType != model.TypeSNAT && natType != model.TypeDNATIP && natType != model.TypeDNATPort {
+		utils.SendError(w, http.StatusBadRequest, "ERR_SEC_1001", "Invalid NAT type", "Use snat, dnat-ip or dnat-port")
+		return
+	}
+
 	id := config_engine.NextNATID()
 
 	natRule := &model.NATRule{
-		ID:           id,
-		OutInterface: req.OutInterface,
-		Description:  req.Description,
+		ID:             id,
+		Type:           natType,
+		SrcAddress:     req.SrcAddress,
+		DstAddress:     req.DstAddress,
+		Service:        req.Service,
+		OutInterface:   req.OutInterface,
+		TranslatedIP:   req.TranslatedIP,
+		TranslatedPort: req.TranslatedPort,
+		Description:    req.Description,
 	}
 
-	if req.SrcZone != "" {
+	if req.SrcZone != "" && req.SrcZone != "any" {
 		zonePtr, exists := fw.Zones[req.SrcZone]
 		if !exists {
 			utils.SendError(w, http.StatusBadRequest, "ERR_NET_2003", "Resource references unknown entity", "src-zone does not exist: "+req.SrcZone)
@@ -62,22 +79,13 @@ func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 		natRule.SrcZone = zonePtr
 	}
 
-	if req.DstZone != "" {
+	if req.DstZone != "" && req.DstZone != "any" {
 		zonePtr, exists := fw.Zones[req.DstZone]
 		if !exists {
 			utils.SendError(w, http.StatusBadRequest, "ERR_NET_2003", "Resource references unknown entity", "dst-zone does not exist: "+req.DstZone)
 			return
 		}
 		natRule.DstZone = zonePtr
-	}
-
-	if req.Action != "" {
-		action := model.NATAction(req.Action)
-		if action != model.Masquerade && action != model.SNAT && action != model.DNAT {
-			utils.SendError(w, http.StatusBadRequest, "ERR_SEC_1001", "Invalid NAT action", "Use masquerade, snat or dnat")
-			return
-		}
-		natRule.Action = action
 	}
 
 	fw.NATRules = append(fw.NATRules, natRule)
@@ -96,7 +104,7 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid or missing ID", "invalid route id format")
+		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid or missing ID", "invalid nat id format")
 		return
 	}
 
@@ -114,11 +122,16 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		SrcZone      string `json:"src-zone"`
-		DstZone      string `json:"dst-zone"`
-		OutInterface string `json:"out-interface"`
-		Action       string `json:"action"`
-		Description  string `json:"description"`
+		Type           string `json:"type"`
+		SrcZone        string `json:"src-zone"`
+		DstZone        string `json:"dst-zone"`
+		SrcAddress     string `json:"src-addr"`
+		DstAddress     string `json:"dst-addr"`
+		Service        string `json:"service"`
+		OutInterface   string `json:"out-interface"`
+		TranslatedIP   string `json:"translated-ip"`
+		TranslatedPort string `json:"translated-port"`
+		Description    string `json:"description"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -126,7 +139,18 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.SrcZone != "" {
+	if req.Type != "" {
+		natType := model.NATType(req.Type)
+		if natType != model.TypeSNAT && natType != model.TypeDNATIP && natType != model.TypeDNATPort {
+			utils.SendError(w, http.StatusBadRequest, "ERR_SEC_1001", "Invalid NAT type", "Use snat, dnat-ip or dnat-port")
+			return
+		}
+		nat.Type = natType
+	}
+
+if req.SrcZone == "" || req.SrcZone == "any" {
+		nat.SrcZone = nil
+	} else {
 		zonePtr, exists := fw.Zones[req.SrcZone]
 		if !exists {
 			utils.SendError(w, http.StatusBadRequest, "ERR_NET_2003", "Resource references unknown entity", "src-zone does not exist: "+req.SrcZone)
@@ -135,7 +159,9 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 		nat.SrcZone = zonePtr
 	}
 
-	if req.DstZone != "" {
+	if req.DstZone == "" || req.DstZone == "any" {
+		nat.DstZone = nil
+	} else {
 		zonePtr, exists := fw.Zones[req.DstZone]
 		if !exists {
 			utils.SendError(w, http.StatusBadRequest, "ERR_NET_2003", "Resource references unknown entity", "dst-zone does not exist: "+req.DstZone)
@@ -144,28 +170,20 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 		nat.DstZone = zonePtr
 	}
 
-	if req.Action != "" {
-		action := model.NATAction(req.Action)
-		if action != model.Masquerade && action != model.SNAT && action != model.DNAT {
-			utils.SendError(w, http.StatusBadRequest, "ERR_SEC_1001", "Invalid NAT action", "Use masquerade, snat or dnat")
-			return
-		}
-		nat.Action = action
-	}
-
-	if req.OutInterface != "" {
-		nat.OutInterface = req.OutInterface
-	}
-
-	if req.Description != "" {
-		nat.Description = req.Description
-	}
+	if req.SrcAddress != "" { nat.SrcAddress = req.SrcAddress }
+	if req.DstAddress != "" { nat.DstAddress = req.DstAddress }
+	if req.Service != "" { nat.Service = req.Service }
+	if req.OutInterface != "" { nat.OutInterface = req.OutInterface }
+	if req.TranslatedIP != "" { nat.TranslatedIP = req.TranslatedIP }
+	if req.TranslatedPort != "" { nat.TranslatedPort = req.TranslatedPort }
+	if req.Description != "" { nat.Description = req.Description }
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "NAT rule updated in candidate"}`))
 }
 
 func DeleteNatHandler(w http.ResponseWriter, r *http.Request) {
+
 	fw := config_engine.GetCandidate()
 	if fw == nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
@@ -201,4 +219,89 @@ func DeleteNatHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"message": "NAT rule deleted in candidate"}`))
+}
+
+
+func MoveNatHandler(w http.ResponseWriter, r *http.Request) {
+    fw := config_engine.GetCandidate()
+    if fw == nil {
+        utils.SendError(w, http.StatusBadRequest, "ERR_SYS_3001", "No active config session", "")
+        return
+    }
+
+    idStr := chi.URLParam(r, "id")
+    targetID, err := strconv.Atoi(idStr)
+    if err != nil {
+        utils.SendError(w, http.StatusBadRequest, "ERR_NET_1002", "Invalid ID", "invalid nat rule id format")
+        return
+    }
+
+    var req struct {
+        Position    string `json:"position"`
+        ReferenceID int    `json:"reference_id"`
+    }
+
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
+        return
+    }
+
+    srcIndex := -1
+    for i, nat := range fw.NATRules {
+        if nat.ID == targetID {
+            srcIndex = i
+            break
+        }
+    }
+
+    if srcIndex == -1 {
+        utils.SendError(w, http.StatusNotFound, "ERR_NET_1003", "NAT Rule not found", "")
+        return
+    }
+
+
+    ruleToMove := fw.NATRules[srcIndex]
+    fw.NATRules = append(fw.NATRules[:srcIndex], fw.NATRules[srcIndex+1:]...)
+
+    var insertIndex int
+
+    switch req.Position {
+    case "top":
+        insertIndex = 0
+    case "bottom":
+        insertIndex = len(fw.NATRules)
+    case "before", "after":
+        refIndex := -1
+        for i, nat := range fw.NATRules {
+            if nat.ID == req.ReferenceID {
+                refIndex = i
+                break
+            }
+        }
+
+        if refIndex == -1 {
+            utils.SendError(w, http.StatusBadRequest, "ERR_NET_1005", "Reference NAT rule not found", "")
+            return
+        }
+
+        if req.Position == "before" {
+            insertIndex = refIndex
+        } else {
+            insertIndex = refIndex + 1
+        }
+    default:
+        utils.SendError(w, http.StatusBadRequest, "ERR_NET_1006", "Invalid position parameter", "Use top, bottom, before, or after")
+        return
+    }
+
+   
+    newRules := make([]*model.NATRule, 0, len(fw.NATRules)+1)
+    newRules = append(newRules, fw.NATRules[:insertIndex]...)
+    newRules = append(newRules, ruleToMove)
+    newRules = append(newRules, fw.NATRules[insertIndex:]...)
+
+    fw.NATRules = newRules
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write([]byte(`{"message": "NAT rule moved successfully"}`))
 }

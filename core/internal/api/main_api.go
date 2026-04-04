@@ -70,6 +70,7 @@ func StartAPIServer() {
 			protected.Route("/nat", func(rt chi.Router) {
 				rt.Get("/", handlers.NatHandler)
 				rt.Post("/", handlers.CreateNatHandler)
+				rt.Post("/{id}/move", handlers.MoveNatHandler)
 				rt.Put("/{id}", handlers.EditNatHandler)
 				rt.Delete("/{id}", handlers.DeleteNatHandler)
 			})

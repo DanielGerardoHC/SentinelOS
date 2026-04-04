@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/network/layout,_N_T_/(dashboard)/network/vpn/layout,_N_T_/(dashboard)/network/vpn/ipsec_vpn/layout,_N_T_/(dashboard)/network/vpn/ipsec_vpn/page,_N_T_/network/vpn/ipsec_vpn"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KGRhc2hib2FyZCk/network/vpn/ipsec_vpn/__PAGE__",
+    "/!KGRhc2hib2FyZCk/network/vpn/ipsec_vpn",
+    "/!KGRhc2hib2FyZCk/network/vpn",
+    "/!KGRhc2hib2FyZCk/network",
+    "/!KGRhc2hib2FyZCk",
+    "/_index",
+    "/_head"
+  ]
+}

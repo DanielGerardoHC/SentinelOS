@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/objects/layout,_N_T_/(dashboard)/objects/addresses/layout,_N_T_/(dashboard)/objects/addresses/page,_N_T_/objects/addresses"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KGRhc2hib2FyZCk/objects/addresses/__PAGE__",
+    "/!KGRhc2hib2FyZCk/objects/addresses",
+    "/!KGRhc2hib2FyZCk/objects",
+    "/!KGRhc2hib2FyZCk",
+    "/_index",
+    "/_head"
+  ]
+}

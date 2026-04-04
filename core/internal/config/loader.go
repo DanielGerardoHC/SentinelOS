@@ -64,14 +64,18 @@ type RawConfig struct {
 		Log      bool     `yaml:"log"`
 	} `yaml:"policies"`
 
-	NATRules []struct {
-		ID           int    `yaml:"id"`
-		Type         string `yaml:"type"`
-		SrcZone      string `yaml:"src-zone"`
-		DstZone      string `yaml:"dst-zone"`
-		Action       string `yaml:"action"`
-		OutInterface string `yaml:"outInterface"`
-		Description  string `yaml:"description"`
+NATRules []struct {
+		ID             int    `yaml:"id"`
+		Type           string `yaml:"type"`
+		SrcZone        string `yaml:"src-zone"`
+		DstZone        string `yaml:"dst-zone"`
+		SrcAddress     string `yaml:"src-addr"`
+		DstAddress     string `yaml:"dst-addr"`
+		Service        string `yaml:"service"`
+		OutInterface   string `yaml:"out-interface"`
+		TranslatedIP   string `yaml:"translated-ip"`
+		TranslatedPort string `yaml:"translated-port"`
+		Description    string `yaml:"description"`
 	} `yaml:"nat"`
 
 	DHCP []struct {

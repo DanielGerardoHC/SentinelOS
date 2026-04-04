@@ -1,0 +1,182 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [
+      {
+        "source": "/api/:path*",
+        "destination": "http://127.0.0.1:8080/api/:path*",
+        "regex": "^/api(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      }
+    ],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/management",
+      "regex": "^/management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/management(?:/)?$"
+    },
+    {
+      "page": "/monitor",
+      "regex": "^/monitor(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/monitor(?:/)?$"
+    },
+    {
+      "page": "/network",
+      "regex": "^/network(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network(?:/)?$"
+    },
+    {
+      "page": "/network/interfaces",
+      "regex": "^/network/interfaces(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/interfaces(?:/)?$"
+    },
+    {
+      "page": "/network/interfaces/vlans",
+      "regex": "^/network/interfaces/vlans(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/interfaces/vlans(?:/)?$"
+    },
+    {
+      "page": "/network/routing",
+      "regex": "^/network/routing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/routing(?:/)?$"
+    },
+    {
+      "page": "/network/vpn",
+      "regex": "^/network/vpn(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/vpn(?:/)?$"
+    },
+    {
+      "page": "/network/vpn/ipsec_vpn",
+      "regex": "^/network/vpn/ipsec_vpn(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/vpn/ipsec_vpn(?:/)?$"
+    },
+    {
+      "page": "/network/vpn/ssl_vpn",
+      "regex": "^/network/vpn/ssl_vpn(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/vpn/ssl_vpn(?:/)?$"
+    },
+    {
+      "page": "/network/vpn/vxlan",
+      "regex": "^/network/vpn/vxlan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/network/vpn/vxlan(?:/)?$"
+    },
+    {
+      "page": "/objects/addresses",
+      "regex": "^/objects/addresses(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/objects/addresses(?:/)?$"
+    },
+    {
+      "page": "/objects/services",
+      "regex": "^/objects/services(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/objects/services(?:/)?$"
+    },
+    {
+      "page": "/objects/zones",
+      "regex": "^/objects/zones(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/objects/zones(?:/)?$"
+    },
+    {
+      "page": "/policies/nat/dnat",
+      "regex": "^/policies/nat/dnat(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/nat/dnat(?:/)?$"
+    },
+    {
+      "page": "/policies/nat/snat",
+      "regex": "^/policies/nat/snat(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/nat/snat(?:/)?$"
+    },
+    {
+      "page": "/policies/rules",
+      "regex": "^/policies/rules(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/rules(?:/)?$"
+    },
+    {
+      "page": "/system",
+      "regex": "^/system(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/system(?:/)?$"
+    },
+    {
+      "page": "/system/threats",
+      "regex": "^/system/threats(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/system/threats(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

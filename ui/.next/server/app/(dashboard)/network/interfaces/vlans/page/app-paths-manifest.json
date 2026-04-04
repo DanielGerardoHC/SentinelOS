@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/network/interfaces/vlans/page": "app/(dashboard)/network/interfaces/vlans/page.js"
+}

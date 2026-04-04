@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/policies/nat/dnat/page": "app/(dashboard)/policies/nat/dnat/page.js"
+}

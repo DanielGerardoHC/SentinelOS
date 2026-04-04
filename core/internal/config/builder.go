@@ -145,27 +145,40 @@ func BuildFirewall(raw *RawConfig) (*model.Firewall, error) {
 	}
 
 	// 7 Nat rules
-	for _, n := range raw.NATRules {
-		srcZone := fw.Zones[n.SrcZone]
-		dstZone := fw.Zones[n.DstZone]
+for _, n := range raw.NATRules {
 
-		if srcZone == nil || dstZone == nil {
-			return nil, fmt.Errorf("NAT rule %d referencia zonas inválidas", n.ID)
+		var srcZone *model.Zone
+		if n.SrcZone != "" && n.SrcZone != "any" {
+			srcZone = fw.Zones[n.SrcZone]
+			if srcZone == nil {
+				return nil, fmt.Errorf("NAT rule %d referencia src-zone inválida: %s", n.ID, n.SrcZone)
+			}
+		}
+
+		var dstZone *model.Zone
+		if n.DstZone != "" && n.DstZone != "any" {
+			dstZone = fw.Zones[n.DstZone]
+			if dstZone == nil {
+				return nil, fmt.Errorf("NAT rule %d referencia dst-zone inválida: %s", n.ID, n.DstZone)
+			}
 		}
 
 		natRule := &model.NATRule{
-			ID:           n.ID,
-			Type:         n.Type,
-			SrcZone:      srcZone,
-			DstZone:      dstZone,
-			Action:       model.NATAction(n.Action),
-			OutInterface: n.OutInterface,
-			Description:  n.Description,
+			ID:             n.ID,
+			Type:           model.NATType(n.Type),
+			SrcZone:        srcZone,
+			DstZone:        dstZone,
+			SrcAddress:     n.SrcAddress,
+			DstAddress:     n.DstAddress,
+			Service:        n.Service,
+			OutInterface:   n.OutInterface,
+			TranslatedIP:   n.TranslatedIP,
+			TranslatedPort: n.TranslatedPort,
+			Description:    n.Description,
 		}
 
 		fw.NATRules = append(fw.NATRules, natRule)
 	}
-
 	// 8 dhcp rules
 	for _, d := range raw.DHCP {
 		dhcp := &model.DHCP{

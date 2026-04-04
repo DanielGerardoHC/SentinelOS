@@ -146,23 +146,31 @@ func SaveYAML(fw *model.Firewall) error {
 	}
 
 	// NAT
-	for _, n := range fw.NATRules {
+   for _, n := range fw.NATRules {
 		raw.NATRules = append(raw.NATRules, struct {
-			ID           int    `yaml:"id"`
-			Type         string `yaml:"type"`
-			SrcZone      string `yaml:"src-zone"`
-			DstZone      string `yaml:"dst-zone"`
-			Action       string `yaml:"action"`
-			OutInterface string `yaml:"outInterface"`
-			Description  string `yaml:"description"`
+			ID             int    `yaml:"id"`
+			Type           string `yaml:"type"`
+			SrcZone        string `yaml:"src-zone"`
+			DstZone        string `yaml:"dst-zone"`
+			SrcAddress     string `yaml:"src-addr"`
+			DstAddress     string `yaml:"dst-addr"`
+			Service        string `yaml:"service"`
+			OutInterface   string `yaml:"out-interface"`
+			TranslatedIP   string `yaml:"translated-ip"`
+			TranslatedPort string `yaml:"translated-port"`
+			Description    string `yaml:"description"`
 		}{
-			ID:           n.ID,
-			Type:         n.Type,
-			SrcZone:      zoneNameOrAny(n.SrcZone),
-			DstZone:      zoneNameOrAny(n.DstZone),
-			Action:       string(n.Action),
-			OutInterface: n.OutInterface,
-			Description:  n.Description,
+			ID:             n.ID,
+			Type:           string(n.Type),
+			SrcZone:        zoneNameOrAny(n.SrcZone),
+			DstZone:        zoneNameOrAny(n.DstZone),
+			SrcAddress:     n.SrcAddress,
+			DstAddress:     n.DstAddress,
+			Service:        n.Service,
+			OutInterface:   n.OutInterface,
+			TranslatedIP:   n.TranslatedIP,
+			TranslatedPort: n.TranslatedPort,
+			Description:    n.Description,
 		})
 	}
 

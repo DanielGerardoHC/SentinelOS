@@ -7,6 +7,15 @@ import (
 	"sentinelos/core/pkg/utils"
 )
 
+// CommitHandler godoc
+// @Summary Commit Configuration
+// @Description Commit the candidate configuration to running configuration.
+// @Tags system, config
+// @Produce json
+// @Success 200 {object} map[string]string "message: commit successful"
+// @Failure 400 {object} utils.APIError "Commit error"
+// @Security ApiKeyAuth
+// @Router /api/config/commit [post]
 func CommitHandler(w http.ResponseWriter, r *http.Request) {
 	err := config_engine.Commit()
 	if err != nil {

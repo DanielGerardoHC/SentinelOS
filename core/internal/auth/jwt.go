@@ -12,13 +12,11 @@ var jwtKey []byte
 func init() {
 	secret := os.Getenv("SENTINELOS_JWT_SECRET")
 	if secret == "" {
-		// fallback temporal
 		secret = "CAMBIAR_ESTO_LUEGO"
 	}
 	jwtKey = []byte(secret)
 }
 
-// jwtkey expone la clave de forma controlada
 func JwtKey() []byte {
 	return jwtKey
 }

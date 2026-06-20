@@ -12,6 +12,15 @@ import (
 	"sentinelos/core/pkg/utils"
 )
 
+// DhcpHandler godoc
+// @Summary List DHCP Configs
+// @Description Get a list of all DHCP configurations.
+// @Tags networking, dhcp
+// @Produce json
+// @Success 200 {object} []model.DHCP "List of DHCP configs"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/dhcp [get]
 func DhcpHandler(w http.ResponseWriter, r *http.Request) {
 	dhcp, err := system.GetDhcpInfo()
 	if err != nil {
@@ -23,6 +32,28 @@ func DhcpHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(dhcp)
 }
 
+// DhcpEditRequest represents the payload for editing a dhcp config
+type DhcpEditRequest struct {
+	Start_ip   string   `json:"start_ip"`
+	End_ip     string   `json:"end_ip"`
+	Gateway    string   `json:"gateway"`
+	Dns        []string `json:"dns"`
+	Lease_time int      `json:"lease_time"`
+}
+
+// EditDhcpHandler godoc
+// @Summary Edit DHCP Config
+// @Description Update an existing DHCP configuration.
+// @Tags networking, dhcp
+// @Accept json
+// @Produce json
+// @Param interface path string true "Interface Name"
+// @Param request body DhcpEditRequest true "DHCP details"
+// @Success 200 {object} map[string]string "message: dhcp pool updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Missing field"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/dhcp/{interface} [put]
 func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -49,13 +80,7 @@ func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Start_ip   string   `json:"start_ip"`
-		End_ip     string   `json:"end_ip"`
-		Gateway    string   `json:"gateway"`
-		Dns        []string `json:"dns"`
-		Lease_time int      `json:"lease_time"`
-	}
+	var req DhcpEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -82,6 +107,27 @@ func EditDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "dhcp pool updated in candidate"}`))
 }
 
+// DhcpCreateRequest represents the payload for creating a dhcp config
+type DhcpCreateRequest struct {
+	Interface  string   `json:"interface"`
+	Start_ip   string   `json:"start_ip"`
+	End_ip     string   `json:"end_ip"`
+	Gateway    string   `json:"gateway"`
+	Dns        []string `json:"dns"`
+	Lease_time int      `json:"lease_time"`
+}
+
+// CreateDhcpHandler godoc
+// @Summary Create DHCP Config
+// @Description Create a new DHCP configuration.
+// @Tags networking, dhcp
+// @Accept json
+// @Produce json
+// @Param request body DhcpCreateRequest true "DHCP details"
+// @Success 200 {object} map[string]string "message: dhcp pool created in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON"
+// @Security ApiKeyAuth
+// @Router /api/dhcp [post]
 func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -89,14 +135,7 @@ func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Interface  string   `json:"interface"`
-		Start_ip   string   `json:"start_ip"`
-		End_ip     string   `json:"end_ip"`
-		Gateway    string   `json:"gateway"`
-		Dns        []string `json:"dns"`
-		Lease_time int      `json:"lease_time"`
-	}
+	var req DhcpCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -118,6 +157,17 @@ func CreateDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "dhcp pool created in candidate"}`))
 }
 
+// DeleteDhcpHandler godoc
+// @Summary Delete DHCP Config
+// @Description Delete an existing DHCP configuration.
+// @Tags networking, dhcp
+// @Produce json
+// @Param interface path string true "Interface Name"
+// @Success 200 {object} map[string]string "message: dhcp pool deleted in candidate"
+// @Failure 400 {object} utils.APIError "Missing required field"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/dhcp/{interface} [delete]
 func DeleteDhcpHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {

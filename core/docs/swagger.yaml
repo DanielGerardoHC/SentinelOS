@@ -1,0 +1,1775 @@
+definitions:
+  internal_api_handlers.AddressCreateRequest:
+    properties:
+      ips:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+    type: object
+  internal_api_handlers.AddressEditRequest:
+    properties:
+      ips:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_api_handlers.DhcpCreateRequest:
+    properties:
+      dns:
+        items:
+          type: string
+        type: array
+      end_ip:
+        type: string
+      gateway:
+        type: string
+      interface:
+        type: string
+      lease_time:
+        type: integer
+      start_ip:
+        type: string
+    type: object
+  internal_api_handlers.DhcpEditRequest:
+    properties:
+      dns:
+        items:
+          type: string
+        type: array
+      end_ip:
+        type: string
+      gateway:
+        type: string
+      lease_time:
+        type: integer
+      start_ip:
+        type: string
+    type: object
+  internal_api_handlers.InterfaceEditRequest:
+    properties:
+      ip:
+        type: string
+      management:
+        items:
+          type: string
+        type: array
+      state:
+        type: string
+      zone:
+        type: string
+    type: object
+  internal_api_handlers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  internal_api_handlers.LoginResponse:
+    properties:
+      expires_in:
+        type: integer
+      token:
+        type: string
+    type: object
+  internal_api_handlers.NatCreateRequest:
+    properties:
+      description:
+        type: string
+      dst-addr:
+        type: string
+      dst-zone:
+        type: string
+      out-interface:
+        type: string
+      service:
+        type: string
+      src-addr:
+        type: string
+      src-zone:
+        type: string
+      translated-ip:
+        type: string
+      translated-port:
+        type: string
+      type:
+        type: string
+    type: object
+  internal_api_handlers.NatEditRequest:
+    properties:
+      description:
+        type: string
+      dst-addr:
+        type: string
+      dst-zone:
+        type: string
+      out-interface:
+        type: string
+      service:
+        type: string
+      src-addr:
+        type: string
+      src-zone:
+        type: string
+      translated-ip:
+        type: string
+      translated-port:
+        type: string
+      type:
+        type: string
+    type: object
+  internal_api_handlers.NatMoveRequest:
+    properties:
+      position:
+        type: string
+      reference_id:
+        type: integer
+    type: object
+  internal_api_handlers.PolicyCreateRequest:
+    properties:
+      action:
+        type: string
+      dst-addr:
+        type: string
+      dst-zone:
+        type: string
+      log:
+        type: boolean
+      services:
+        items:
+          type: string
+        type: array
+      src-addr:
+        type: string
+      src-zone:
+        type: string
+    type: object
+  internal_api_handlers.PolicyEditRequest:
+    properties:
+      action:
+        type: string
+      dst-addr:
+        type: string
+      dst-zone:
+        type: string
+      log:
+        type: boolean
+      services:
+        items:
+          type: string
+        type: array
+      src-addr:
+        type: string
+      src-zone:
+        type: string
+    type: object
+  internal_api_handlers.PolicyMoveRequest:
+    properties:
+      position:
+        type: string
+      reference_id:
+        type: integer
+    type: object
+  internal_api_handlers.RouteCreateRequest:
+    properties:
+      description:
+        type: string
+      destination:
+        type: string
+      gateway:
+        type: string
+      interface:
+        type: string
+      metric:
+        type: integer
+    type: object
+  internal_api_handlers.RouteEditRequest:
+    properties:
+      description:
+        type: string
+      destination:
+        type: string
+      gateway:
+        type: string
+      interface:
+        type: string
+      metric:
+        type: integer
+    type: object
+  internal_api_handlers.ServiceCreateRequest:
+    properties:
+      name:
+        type: string
+      ports:
+        items:
+          type: integer
+        type: array
+      protocol:
+        type: string
+    type: object
+  internal_api_handlers.ServiceEditRequest:
+    properties:
+      ports:
+        items:
+          type: integer
+        type: array
+      protocol:
+        type: string
+    type: object
+  internal_api_handlers.VlanCreateRequest:
+    properties:
+      id:
+        type: integer
+      ip:
+        type: string
+      management:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      parent:
+        type: string
+      state:
+        type: string
+      zone:
+        type: string
+    type: object
+  internal_api_handlers.VlanEditRequest:
+    properties:
+      id:
+        type: integer
+      ip:
+        type: string
+      management:
+        items:
+          type: string
+        type: array
+      parent:
+        type: string
+      state:
+        type: string
+      zone:
+        type: string
+    type: object
+  internal_api_handlers.ZoneCreateRequest:
+    properties:
+      color:
+        type: string
+      interfaces:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      networks:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+    type: object
+  internal_api_handlers.ZoneEditRequest:
+    properties:
+      color:
+        type: string
+      interfaces:
+        items:
+          type: string
+        type: array
+      networks:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+    type: object
+  net.IPNet:
+    properties:
+      ip:
+        description: network number
+        items:
+          format: int32
+          type: integer
+        type: array
+      mask:
+        description: network mask
+        items:
+          format: int32
+          type: integer
+        type: array
+    type: object
+  sentinelos_core_internal_model.Action:
+    enum:
+    - allow
+    - deny
+    type: string
+    x-enum-varnames:
+    - Allow
+    - Deny
+  sentinelos_core_internal_model.Address:
+    properties:
+      ips:
+        items:
+          $ref: '#/definitions/net.IPNet'
+        type: array
+      name:
+        type: string
+    type: object
+  sentinelos_core_internal_model.DHCP:
+    properties:
+      dns:
+        items:
+          type: string
+        type: array
+      endIP:
+        type: string
+      gateway:
+        type: string
+      interface:
+        type: string
+      leaseTimeMin:
+        type: integer
+      startIP:
+        type: string
+      subnetMask:
+        type: string
+    type: object
+  sentinelos_core_internal_model.NATRule:
+    properties:
+      description:
+        type: string
+      dstAddress:
+        type: string
+      dstZone:
+        $ref: '#/definitions/sentinelos_core_internal_model.Zone'
+      id:
+        type: integer
+      outInterface:
+        type: string
+      service:
+        type: string
+      srcAddress:
+        type: string
+      srcZone:
+        $ref: '#/definitions/sentinelos_core_internal_model.Zone'
+      translatedIP:
+        type: string
+      translatedPort:
+        type: string
+      type:
+        $ref: '#/definitions/sentinelos_core_internal_model.NATType'
+    type: object
+  sentinelos_core_internal_model.NATType:
+    enum:
+    - snat
+    - dnat-ip
+    - dnat-port
+    type: string
+    x-enum-varnames:
+    - TypeSNAT
+    - TypeDNATIP
+    - TypeDNATPort
+  sentinelos_core_internal_model.Policy:
+    properties:
+      action:
+        $ref: '#/definitions/sentinelos_core_internal_model.Action'
+      dstAddr:
+        $ref: '#/definitions/sentinelos_core_internal_model.Address'
+      dstZone:
+        $ref: '#/definitions/sentinelos_core_internal_model.Zone'
+      id:
+        type: integer
+      log:
+        type: boolean
+      services:
+        items:
+          $ref: '#/definitions/sentinelos_core_internal_model.Service'
+        type: array
+      srcAddr:
+        $ref: '#/definitions/sentinelos_core_internal_model.Address'
+      srcZone:
+        $ref: '#/definitions/sentinelos_core_internal_model.Zone'
+    type: object
+  sentinelos_core_internal_model.Protocol:
+    enum:
+    - tcp
+    - udp
+    type: string
+    x-enum-varnames:
+    - TCP
+    - UDP
+  sentinelos_core_internal_model.Route:
+    properties:
+      description:
+        type: string
+      destination:
+        type: string
+      gateway:
+        type: string
+      id:
+        type: integer
+      interface:
+        type: string
+      metric:
+        type: integer
+    type: object
+  sentinelos_core_internal_model.Service:
+    properties:
+      name:
+        type: string
+      ports:
+        items:
+          type: integer
+        type: array
+      protocol:
+        $ref: '#/definitions/sentinelos_core_internal_model.Protocol'
+    type: object
+  sentinelos_core_internal_model.Vlan:
+    properties:
+      id:
+        type: integer
+      ip:
+        type: string
+      management:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      parent:
+        type: string
+      state:
+        type: string
+      zone:
+        type: string
+    type: object
+  sentinelos_core_internal_model.Zone:
+    properties:
+      color:
+        type: string
+      interfaces:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      networks:
+        items:
+          type: string
+        type: array
+      type:
+        $ref: '#/definitions/sentinelos_core_internal_model.ZoneType'
+    type: object
+  sentinelos_core_internal_model.ZoneType:
+    enum:
+    - l2
+    - l3
+    type: string
+    x-enum-varnames:
+    - ZoneL2
+    - ZoneL3
+  sentinelos_core_internal_system.InterfaceInfo:
+    properties:
+      ip:
+        type: string
+      management:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      state:
+        type: string
+      zone:
+        type: string
+    type: object
+  sentinelos_core_pkg_utils.APIError:
+    properties:
+      code:
+        type: string
+      details:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Next-Generation Firewall Management API.
+  title: SentinelOS API
+  version: "1.0"
+paths:
+  /api/addresses:
+    get:
+      description: Get a list of all addresses.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of addresses
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/sentinelos_core_internal_model.Address'
+            type: object
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Addresses
+      tags:
+      - networking
+      - addresses
+    post:
+      consumes:
+      - application/json
+      description: Create a new address object.
+      parameters:
+      - description: Address details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.AddressCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: address created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: ERR_NET_1004 Invalid JSON or Missing field
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "409":
+          description: ERR_NET_2006 Resource already exists
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Address
+      tags:
+      - networking
+      - addresses
+  /api/addresses/{name}:
+    delete:
+      description: Delete an existing address object.
+      parameters:
+      - description: Address Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: address deleted from candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing required field
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Address
+      tags:
+      - networking
+      - addresses
+    put:
+      consumes:
+      - application/json
+      description: Update an existing address object.
+      parameters:
+      - description: Address Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Address details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.AddressEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: address updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Missing field
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Address
+      tags:
+      - networking
+      - addresses
+  /api/config/begin:
+    post:
+      description: Start a new candidate configuration session.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: config session started'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Missing authorization token
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "409":
+          description: Config session already active
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Begin Configuration Session
+      tags:
+      - system
+      - config
+  /api/config/commit:
+    post:
+      description: Commit the candidate configuration to running configuration.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: commit successful'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Commit error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Commit Configuration
+      tags:
+      - system
+      - config
+  /api/dhcp:
+    get:
+      description: Get a list of all DHCP configurations.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of DHCP configs
+          schema:
+            items:
+              $ref: '#/definitions/sentinelos_core_internal_model.DHCP'
+            type: array
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List DHCP Configs
+      tags:
+      - networking
+      - dhcp
+    post:
+      consumes:
+      - application/json
+      description: Create a new DHCP configuration.
+      parameters:
+      - description: DHCP details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.DhcpCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: dhcp pool created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create DHCP Config
+      tags:
+      - networking
+      - dhcp
+  /api/dhcp/{interface}:
+    delete:
+      description: Delete an existing DHCP configuration.
+      parameters:
+      - description: Interface Name
+        in: path
+        name: interface
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: dhcp pool deleted in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing required field
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete DHCP Config
+      tags:
+      - networking
+      - dhcp
+    put:
+      consumes:
+      - application/json
+      description: Update an existing DHCP configuration.
+      parameters:
+      - description: Interface Name
+        in: path
+        name: interface
+        required: true
+        type: string
+      - description: DHCP details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.DhcpEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: dhcp pool updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Missing field
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit DHCP Config
+      tags:
+      - networking
+      - dhcp
+  /api/interfaces:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all network interfaces.
+      parameters:
+      - description: Filter by OSI layer (2 or 3)
+        in: query
+        name: layer
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of interfaces
+          schema:
+            items:
+              $ref: '#/definitions/sentinelos_core_internal_system.InterfaceInfo'
+            type: array
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Interfaces
+      tags:
+      - networking
+      - interfaces
+  /api/interfaces/{name}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing network interface.
+      parameters:
+      - description: Interface Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Interface details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.InterfaceEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: interface updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Zone does not exist
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Interface
+      tags:
+      - networking
+      - interfaces
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate an admin and receive a JWT token.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            $ref: '#/definitions/internal_api_handlers.LoginResponse'
+        "400":
+          description: ERR_NET_1004 Invalid JSON
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "401":
+          description: ERR_SEC_5005 Invalid credentials
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "405":
+          description: ERR_NET_1009 Method not allowed
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "500":
+          description: ERR_SEC_5006 Failed to generate token
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      summary: Admin Login
+      tags:
+      - authentication
+  /api/me:
+    get:
+      description: Get current authenticated user details.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Missing authorization token
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Current User
+      tags:
+      - system
+  /api/nat:
+    get:
+      description: Get a list of all NAT rules.
+      parameters:
+      - description: Filter by NAT type (e.g. snat, dnat-ip)
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of NAT rules
+          schema:
+            items:
+              $ref: '#/definitions/sentinelos_core_internal_model.NATRule'
+            type: array
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List NAT Rules
+      tags:
+      - security
+      - nat
+    post:
+      consumes:
+      - application/json
+      description: Create a new NAT rule.
+      parameters:
+      - description: NAT details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.NatCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: NAT rule added in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or NAT type
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create NAT Rule
+      tags:
+      - security
+      - nat
+  /api/nat/{id}:
+    delete:
+      description: Delete an existing NAT rule.
+      parameters:
+      - description: NAT Rule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: NAT rule deleted in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete NAT Rule
+      tags:
+      - security
+      - nat
+    put:
+      consumes:
+      - application/json
+      description: Update an existing NAT rule.
+      parameters:
+      - description: NAT Rule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: NAT details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.NatEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: NAT rule updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit NAT Rule
+      tags:
+      - security
+      - nat
+  /api/nat/{id}/move:
+    post:
+      consumes:
+      - application/json
+      description: Move a NAT rule relative to another rule (top, bottom, before,
+        after).
+      parameters:
+      - description: NAT Rule ID to move
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Move details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.NatMoveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: NAT rule moved successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Position
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 NAT Rule not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Move NAT Rule
+      tags:
+      - security
+      - nat
+  /api/policies:
+    get:
+      description: Get a list of all policies.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of policies
+          schema:
+            items:
+              $ref: '#/definitions/sentinelos_core_internal_model.Policy'
+            type: array
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Policies
+      tags:
+      - security
+      - policies
+    post:
+      consumes:
+      - application/json
+      description: Create a new security policy.
+      parameters:
+      - description: Policy details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.PolicyCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: policy created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or references unknown entity
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Policy
+      tags:
+      - security
+      - policies
+  /api/policies/{id}:
+    delete:
+      description: Delete an existing security policy.
+      parameters:
+      - description: Policy ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: policy deleted from candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Policy
+      tags:
+      - security
+      - policies
+    put:
+      consumes:
+      - application/json
+      description: Update an existing security policy.
+      parameters:
+      - description: Policy ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Policy details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.PolicyEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: policy updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Policy
+      tags:
+      - security
+      - policies
+  /api/policies/{id}/move:
+    post:
+      consumes:
+      - application/json
+      description: Move a policy relative to another policy (top, bottom, before,
+        after).
+      parameters:
+      - description: Policy ID to move
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Move details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.PolicyMoveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: policy moved successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Position
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Policy not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Move Policy
+      tags:
+      - security
+      - policies
+  /api/routes:
+    get:
+      description: Get a list of all routes.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of routes
+          schema:
+            items:
+              $ref: '#/definitions/sentinelos_core_internal_model.Route'
+            type: array
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Routes
+      tags:
+      - networking
+      - routes
+    post:
+      consumes:
+      - application/json
+      description: Create a new route object.
+      parameters:
+      - description: Route details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.RouteCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: route created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Route
+      tags:
+      - networking
+      - routes
+  /api/routes/{id}:
+    delete:
+      description: Delete an existing route object.
+      parameters:
+      - description: Route ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: route deleted from candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid or missing ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Route
+      tags:
+      - networking
+      - routes
+    put:
+      consumes:
+      - application/json
+      description: Update an existing route object.
+      parameters:
+      - description: Route ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Route details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.RouteEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: route updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or missing ID
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Route
+      tags:
+      - networking
+      - routes
+  /api/services:
+    get:
+      description: Get a list of all services.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of services
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/sentinelos_core_internal_model.Service'
+            type: object
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Services
+      tags:
+      - security
+      - services
+    post:
+      consumes:
+      - application/json
+      description: Create a new service object.
+      parameters:
+      - description: Service details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.ServiceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: service created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or protocol
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "409":
+          description: ERR_NET_2006 Resource already exists
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Service
+      tags:
+      - security
+      - services
+  /api/services/{name}:
+    delete:
+      description: Delete an existing service object.
+      parameters:
+      - description: Service Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: service deleted from candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Service
+      tags:
+      - security
+      - services
+    put:
+      consumes:
+      - application/json
+      description: Update an existing service object.
+      parameters:
+      - description: Service Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Service details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.ServiceEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: service updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or protocol
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Service
+      tags:
+      - security
+      - services
+  /api/status:
+    get:
+      description: Get the system and firewall status.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status details
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Firewall Status
+      tags:
+      - system
+  /api/vlans:
+    get:
+      description: Get a list of all vlans.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of vlans
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/sentinelos_core_internal_model.Vlan'
+            type: object
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Vlans
+      tags:
+      - networking
+      - vlans
+    post:
+      consumes:
+      - application/json
+      description: Create a new vlan object.
+      parameters:
+      - description: Vlan details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.VlanCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: vlan created in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Zone does not exist
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Vlan
+      tags:
+      - networking
+      - vlans
+  /api/vlans/{name}:
+    delete:
+      description: Delete an existing vlan object.
+      parameters:
+      - description: Vlan Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: vlan deleted from candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Vlan
+      tags:
+      - networking
+      - vlans
+    put:
+      consumes:
+      - application/json
+      description: Update an existing vlan object.
+      parameters:
+      - description: Vlan Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Vlan details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.VlanEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: vlan updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Zone does not exist
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Vlan
+      tags:
+      - networking
+      - vlans
+  /api/zones:
+    get:
+      description: Get a list of all zones.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of zones
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/sentinelos_core_internal_model.Zone'
+            type: object
+        "500":
+          description: ERR_SYS_4001 Internal server error
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Zones
+      tags:
+      - security
+      - zones
+    post:
+      consumes:
+      - application/json
+      description: Create a new zone object.
+      parameters:
+      - description: Zone details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.ZoneCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: zone added in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Zone Type
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "409":
+          description: ERR_NET_2006 Resource already exists
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Zone
+      tags:
+      - security
+      - zones
+  /api/zones/{name}:
+    delete:
+      description: Delete an existing zone object.
+      parameters:
+      - description: Zone Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: zone deleted in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Zone
+      tags:
+      - security
+      - zones
+    put:
+      consumes:
+      - application/json
+      description: Update an existing zone object.
+      parameters:
+      - description: Zone Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Zone details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.ZoneEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: zone updated in candidate'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON or Zone Type
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+        "404":
+          description: ERR_NET_1003 Resource not found
+          schema:
+            $ref: '#/definitions/sentinelos_core_pkg_utils.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Zone
+      tags:
+      - security
+      - zones
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -5,14 +5,23 @@ import (
 	"net/http"
 
 	"sentinelos/core/internal/api/middleware"
+	"sentinelos/core/pkg/utils"
 )
 
+// MeHandler godoc
+// @Summary Current User
+// @Description Get current authenticated user details.
+// @Tags system
+// @Produce json
+// @Success 200 {object} map[string]interface{} "User details"
+// @Failure 401 {object} utils.APIError "Missing authorization token"
+// @Security ApiKeyAuth
+// @Router /api/me [get]
 func MeHandler(w http.ResponseWriter, r *http.Request) {
 
-//	claims, ok := r.Context().Value("user").(*auth.Claims)
 	claims, ok := middleware.UserFromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		utils.SendError(w, http.StatusUnauthorized, "ERR_SEC_5001", "Missing authorization token", "")
 		return
 	}
 

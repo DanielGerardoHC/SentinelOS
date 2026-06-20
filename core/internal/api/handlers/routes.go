@@ -13,6 +13,15 @@ import (
 	"sentinelos/core/pkg/utils"
 )
 
+// RoutesHandler godoc
+// @Summary List Routes
+// @Description Get a list of all routes.
+// @Tags networking, routes
+// @Produce json
+// @Success 200 {object} []model.Route "List of routes"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/routes [get]
 func RoutesHandler(w http.ResponseWriter, r *http.Request) {
 	routes, err := system.GetRoutes()
 	if err != nil {
@@ -24,6 +33,28 @@ func RoutesHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(routes)
 }
 
+// RouteEditRequest represents the payload for editing a route
+type RouteEditRequest struct {
+	Destination string `json:"destination"`
+	Gateway     string `json:"gateway"`
+	Interface   string `json:"interface"`
+	Metric      int    `json:"metric"`
+	Description string `json:"description"`
+}
+
+// EditRouteHandler godoc
+// @Summary Edit Route
+// @Description Update an existing route object.
+// @Tags networking, routes
+// @Accept json
+// @Produce json
+// @Param id path int true "Route ID"
+// @Param request body RouteEditRequest true "Route details"
+// @Success 200 {object} map[string]string "message: route updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or missing ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/routes/{id} [put]
 func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -51,13 +82,7 @@ func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Destination string `json:"destination"`
-		Gateway     string `json:"gateway"`
-		Interface   string `json:"interface"`
-		Metric      int    `json:"metric"`
-		Description string `json:"description"`
-	}
+	var req RouteEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -84,6 +109,26 @@ func EditRouteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "route updated in candidate"}`))
 }
 
+// RouteCreateRequest represents the payload for creating a route
+type RouteCreateRequest struct {
+	Destination string `json:"destination"`
+	Gateway     string `json:"gateway"`
+	Interface   string `json:"interface"`
+	Metric      int    `json:"metric"`
+	Description string `json:"description"`
+}
+
+// CreateRouteHandler godoc
+// @Summary Create Route
+// @Description Create a new route object.
+// @Tags networking, routes
+// @Accept json
+// @Produce json
+// @Param request body RouteCreateRequest true "Route details"
+// @Success 200 {object} map[string]string "message: route created in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON"
+// @Security ApiKeyAuth
+// @Router /api/routes [post]
 func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -91,13 +136,7 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Destination string `json:"destination"`
-		Gateway     string `json:"gateway"`
-		Interface   string `json:"interface"`
-		Metric      int    `json:"metric"`
-		Description string `json:"description"`
-	}
+	var req RouteCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -121,6 +160,17 @@ func CreateRouteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "route created in candidate"}`))
 }
 
+// DeleteRouteHandler godoc
+// @Summary Delete Route
+// @Description Delete an existing route object.
+// @Tags networking, routes
+// @Produce json
+// @Param id path int true "Route ID"
+// @Success 200 {object} map[string]string "message: route deleted from candidate"
+// @Failure 400 {object} utils.APIError "Invalid or missing ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/routes/{id} [delete]
 func DeleteRouteHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {

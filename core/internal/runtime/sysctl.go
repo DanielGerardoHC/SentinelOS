@@ -19,10 +19,8 @@ net.ipv4.conf.default.rp_filter=0
 		return err
 	}
 
-	// Aplicar global
 	exec.Command("sysctl", "--system").Run()
 
-	// Forzar por interfaz
 	for _, iface := range interfaces {
 		cmd := exec.Command(
 			"sysctl",

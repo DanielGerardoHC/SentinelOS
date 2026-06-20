@@ -10,6 +10,17 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// InterfacesHandler godoc
+// @Summary List Interfaces
+// @Description Get a list of all network interfaces.
+// @Tags networking, interfaces
+// @Accept json
+// @Produce json
+// @Param layer query string false "Filter by OSI layer (2 or 3)"
+// @Success 200 {array} system.InterfaceInfo "List of interfaces"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/interfaces [get]
 func InterfacesHandler(w http.ResponseWriter, r *http.Request) {
 	layerFilter := r.URL.Query().Get("layer")
 
@@ -40,6 +51,19 @@ type InterfaceEditRequest struct {
 	Management []string `json:"management"`
 }
 
+// EditInterfaceHandler godoc
+// @Summary Edit Interface
+// @Description Update an existing network interface.
+// @Tags networking, interfaces
+// @Accept json
+// @Produce json
+// @Param name path string true "Interface Name"
+// @Param request body InterfaceEditRequest true "Interface details"
+// @Success 200 {object} map[string]string "message: interface updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Zone does not exist"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/interfaces/{name} [put]
 func EditInterfaceHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {

@@ -14,6 +14,15 @@ import (
 	"sentinelos/core/pkg/utils"
 )
 
+// PoliciesHandler godoc
+// @Summary List Policies
+// @Description Get a list of all policies.
+// @Tags security, policies
+// @Produce json
+// @Success 200 {object} []model.Policy "List of policies"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/policies [get]
 func PoliciesHandler(w http.ResponseWriter, r *http.Request) {
 	status, err := system.GetPolicies()
 	if err != nil {
@@ -25,6 +34,28 @@ func PoliciesHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(status)
 }
 
+// PolicyCreateRequest represents the payload for creating a policy
+type PolicyCreateRequest struct {
+	SrcZone  string   `json:"src-zone"`
+	DstZone  string   `json:"dst-zone"`
+	SrcAddr  string   `json:"src-addr"`
+	DstAddr  string   `json:"dst-addr"`
+	Services []string `json:"services"`
+	Action   string   `json:"action"`
+	Log      bool     `json:"log"`
+}
+
+// CreatePolicyHandler godoc
+// @Summary Create Policy
+// @Description Create a new security policy.
+// @Tags security, policies
+// @Accept json
+// @Produce json
+// @Param request body PolicyCreateRequest true "Policy details"
+// @Success 200 {object} map[string]string "message: policy created in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or references unknown entity"
+// @Security ApiKeyAuth
+// @Router /api/policies [post]
 func CreatePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -32,15 +63,7 @@ func CreatePolicyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		SrcZone  string   `json:"src-zone"`
-		DstZone  string   `json:"dst-zone"`
-		SrcAddr  string   `json:"src-addr"`
-		DstAddr  string   `json:"dst-addr"`
-		Services []string `json:"services"`
-		Action   string   `json:"action"`
-		Log      bool     `json:"log"`
-	}
+	var req PolicyCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -118,6 +141,30 @@ func CreatePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "policy created in candidate"}`))
 }
 
+// PolicyEditRequest represents the payload for editing a policy
+type PolicyEditRequest struct {
+	SrcZone  string   `json:"src-zone"`
+	DstZone  string   `json:"dst-zone"`
+	SrcAddr  string   `json:"src-addr"`
+	DstAddr  string   `json:"dst-addr"`
+	Services []string `json:"services"`
+	Action   string   `json:"action"`
+	Log      *bool    `json:"log"`
+}
+
+// EditPolicyHandler godoc
+// @Summary Edit Policy
+// @Description Update an existing security policy.
+// @Tags security, policies
+// @Accept json
+// @Produce json
+// @Param id path int true "Policy ID"
+// @Param request body PolicyEditRequest true "Policy details"
+// @Success 200 {object} map[string]string "message: policy updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/policies/{id} [put]
 func EditPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -145,15 +192,7 @@ func EditPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		SrcZone  string   `json:"src-zone"`
-		DstZone  string   `json:"dst-zone"`
-		SrcAddr  string   `json:"src-addr"`
-		DstAddr  string   `json:"dst-addr"`
-		Services []string `json:"services"`
-		Action   string   `json:"action"`
-		Log      *bool    `json:"log"`
-	}
+	var req PolicyEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -226,6 +265,17 @@ func EditPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "policy updated in candidate"}`))
 }
 
+// DeletePolicyHandler godoc
+// @Summary Delete Policy
+// @Description Delete an existing security policy.
+// @Tags security, policies
+// @Produce json
+// @Param id path int true "Policy ID"
+// @Success 200 {object} map[string]string "message: policy deleted from candidate"
+// @Failure 400 {object} utils.APIError "Invalid ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/policies/{id} [delete]
 func DeletePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -264,6 +314,25 @@ func DeletePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "policy deleted from candidate"}`))
 }
 
+// PolicyMoveRequest represents the payload for moving a policy
+type PolicyMoveRequest struct {
+	Position    string `json:"position"`
+	ReferenceID int    `json:"reference_id"`
+}
+
+// MovePolicyHandler godoc
+// @Summary Move Policy
+// @Description Move a policy relative to another policy (top, bottom, before, after).
+// @Tags security, policies
+// @Accept json
+// @Produce json
+// @Param id path int true "Policy ID to move"
+// @Param request body PolicyMoveRequest true "Move details"
+// @Success 200 {object} map[string]string "message: policy moved successfully"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Position"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Policy not found"
+// @Security ApiKeyAuth
+// @Router /api/policies/{id}/move [post]
 func MovePolicyHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -278,10 +347,7 @@ func MovePolicyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Position    string `json:"position"`
-		ReferenceID int    `json:"reference_id"`
-	}
+	var req PolicyMoveRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())

@@ -13,6 +13,16 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// NatHandler godoc
+// @Summary List NAT Rules
+// @Description Get a list of all NAT rules.
+// @Tags security, nat
+// @Produce json
+// @Param type query string false "Filter by NAT type (e.g. snat, dnat-ip)"
+// @Success 200 {object} []model.NATRule "List of NAT rules"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/nat [get]
 func NatHandler(w http.ResponseWriter, r *http.Request) {
 	actionFilter := r.URL.Query().Get("type")
 	natRules, err := system.GetNatRules(actionFilter)
@@ -24,6 +34,31 @@ func NatHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(natRules)
 }
 
+// NatCreateRequest represents the payload for creating a NAT rule
+type NatCreateRequest struct {
+	Type           string `json:"type"`
+	SrcZone        string `json:"src-zone"`
+	DstZone        string `json:"dst-zone"`
+	SrcAddress     string `json:"src-addr"`
+	DstAddress     string `json:"dst-addr"`
+	Service        string `json:"service"`
+	OutInterface   string `json:"out-interface"`
+	TranslatedIP   string `json:"translated-ip"`
+	TranslatedPort string `json:"translated-port"`
+	Description    string `json:"description"`
+}
+
+// CreateNatHandler godoc
+// @Summary Create NAT Rule
+// @Description Create a new NAT rule.
+// @Tags security, nat
+// @Accept json
+// @Produce json
+// @Param request body NatCreateRequest true "NAT details"
+// @Success 200 {object} map[string]string "message: NAT rule added in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or NAT type"
+// @Security ApiKeyAuth
+// @Router /api/nat [post]
 func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -31,18 +66,7 @@ func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Type           string `json:"type"`
-		SrcZone        string `json:"src-zone"`
-		DstZone        string `json:"dst-zone"`
-		SrcAddress     string `json:"src-addr"`
-		DstAddress     string `json:"dst-addr"`
-		Service        string `json:"service"`
-		OutInterface   string `json:"out-interface"`
-		TranslatedIP   string `json:"translated-ip"`
-		TranslatedPort string `json:"translated-port"`
-		Description    string `json:"description"`
-	}
+	var req NatCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -94,6 +118,33 @@ func CreateNatHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "NAT rule added in candidate"}`))
 }
 
+// NatEditRequest represents the payload for editing a NAT rule
+type NatEditRequest struct {
+	Type           string `json:"type"`
+	SrcZone        string `json:"src-zone"`
+	DstZone        string `json:"dst-zone"`
+	SrcAddress     string `json:"src-addr"`
+	DstAddress     string `json:"dst-addr"`
+	Service        string `json:"service"`
+	OutInterface   string `json:"out-interface"`
+	TranslatedIP   string `json:"translated-ip"`
+	TranslatedPort string `json:"translated-port"`
+	Description    string `json:"description"`
+}
+
+// EditNatHandler godoc
+// @Summary Edit NAT Rule
+// @Description Update an existing NAT rule.
+// @Tags security, nat
+// @Accept json
+// @Produce json
+// @Param id path int true "NAT Rule ID"
+// @Param request body NatEditRequest true "NAT details"
+// @Success 200 {object} map[string]string "message: NAT rule updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/nat/{id} [put]
 func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -121,18 +172,7 @@ func EditNatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Type           string `json:"type"`
-		SrcZone        string `json:"src-zone"`
-		DstZone        string `json:"dst-zone"`
-		SrcAddress     string `json:"src-addr"`
-		DstAddress     string `json:"dst-addr"`
-		Service        string `json:"service"`
-		OutInterface   string `json:"out-interface"`
-		TranslatedIP   string `json:"translated-ip"`
-		TranslatedPort string `json:"translated-port"`
-		Description    string `json:"description"`
-	}
+	var req NatEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -182,6 +222,17 @@ if req.SrcZone == "" || req.SrcZone == "any" {
 	w.Write([]byte(`{"message": "NAT rule updated in candidate"}`))
 }
 
+// DeleteNatHandler godoc
+// @Summary Delete NAT Rule
+// @Description Delete an existing NAT rule.
+// @Tags security, nat
+// @Produce json
+// @Param id path int true "NAT Rule ID"
+// @Success 200 {object} map[string]string "message: NAT rule deleted in candidate"
+// @Failure 400 {object} utils.APIError "Invalid ID"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/nat/{id} [delete]
 func DeleteNatHandler(w http.ResponseWriter, r *http.Request) {
 
 	fw := config_engine.GetCandidate()
@@ -222,6 +273,25 @@ func DeleteNatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
+// NatMoveRequest represents the payload for moving a NAT rule
+type NatMoveRequest struct {
+	Position    string `json:"position"`
+	ReferenceID int    `json:"reference_id"`
+}
+
+// MoveNatHandler godoc
+// @Summary Move NAT Rule
+// @Description Move a NAT rule relative to another rule (top, bottom, before, after).
+// @Tags security, nat
+// @Accept json
+// @Produce json
+// @Param id path int true "NAT Rule ID to move"
+// @Param request body NatMoveRequest true "Move details"
+// @Success 200 {object} map[string]string "message: NAT rule moved successfully"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Position"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 NAT Rule not found"
+// @Security ApiKeyAuth
+// @Router /api/nat/{id}/move [post]
 func MoveNatHandler(w http.ResponseWriter, r *http.Request) {
     fw := config_engine.GetCandidate()
     if fw == nil {
@@ -236,10 +306,7 @@ func MoveNatHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    var req struct {
-        Position    string `json:"position"`
-        ReferenceID int    `json:"reference_id"`
-    }
+    var req NatMoveRequest
 
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())

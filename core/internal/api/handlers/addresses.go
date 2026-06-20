@@ -13,6 +13,15 @@ import (
 	"sentinelos/core/pkg/utils"
 )
 
+// AddressesHandler godoc
+// @Summary List Addresses
+// @Description Get a list of all addresses.
+// @Tags networking, addresses
+// @Produce json
+// @Success 200 {object} map[string]model.Address "List of addresses"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/addresses [get]
 func AddressesHandler(w http.ResponseWriter, r *http.Request) {
 	addresses, err := system.GetAddresses()
 	if err != nil {
@@ -24,6 +33,24 @@ func AddressesHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(addresses)
 }
 
+// AddressCreateRequest represents the payload for creating an address
+type AddressCreateRequest struct {
+	Name string   `json:"name"`
+	IPs  []string `json:"ips"`
+}
+
+// CreateAddressHandler godoc
+// @Summary Create Address
+// @Description Create a new address object.
+// @Tags networking, addresses
+// @Accept json
+// @Produce json
+// @Param request body AddressCreateRequest true "Address details"
+// @Success 200 {object} map[string]string "message: address created in candidate"
+// @Failure 400 {object} utils.APIError "ERR_NET_1004 Invalid JSON or Missing field"
+// @Failure 409 {object} utils.APIError "ERR_NET_2006 Resource already exists"
+// @Security ApiKeyAuth
+// @Router /api/addresses [post]
 func CreateAddressHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -31,10 +58,7 @@ func CreateAddressHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Name string   `json:"name"`
-		IPs  []string `json:"ips"`
-	}
+	var req AddressCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -78,6 +102,24 @@ func CreateAddressHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "address created in candidate"}`))
 }
 
+// AddressEditRequest represents the payload for editing an address
+type AddressEditRequest struct {
+	IPs []string `json:"ips"`
+}
+
+// EditAddressHandler godoc
+// @Summary Edit Address
+// @Description Update an existing address object.
+// @Tags networking, addresses
+// @Accept json
+// @Produce json
+// @Param name path string true "Address Name"
+// @Param request body AddressEditRequest true "Address details"
+// @Success 200 {object} map[string]string "message: address updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Missing field"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/addresses/{name} [put]
 func EditAddressHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -97,9 +139,7 @@ func EditAddressHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		IPs []string `json:"ips"`
-	}
+	var req AddressEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -123,6 +163,17 @@ func EditAddressHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "address updated in candidate"}`))
 }
 
+// DeleteAddressHandler godoc
+// @Summary Delete Address
+// @Description Delete an existing address object.
+// @Tags networking, addresses
+// @Produce json
+// @Param name path string true "Address Name"
+// @Success 200 {object} map[string]string "message: address deleted from candidate"
+// @Failure 400 {object} utils.APIError "Missing required field"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/addresses/{name} [delete]
 func DeleteAddressHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {

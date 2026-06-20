@@ -17,14 +17,12 @@ func Commit() error {
 		return errors.New("no candidate config")
 	}
 
-	// Validate
 	if err := validator.ValidateFirewall(candidate); err != nil {
 		abortConfigLocked()
 		return err
 
 	}
 
-	// Backup
 	backup, err := CloneFirewall(running)
 	if err != nil {
 		abortConfigLocked()
@@ -32,13 +30,11 @@ func Commit() error {
 		return &utils.APIError{Code: "ERR_SYS_4003", Message: "Failed to create config backup", Details: err.Error()}
 	}
 
-	// Apply
 	if err := runtime.ApplyFullRuntime(candidate); err != nil {
 		_ = runtime.ApplyFullRuntime(backup)
 		return &utils.APIError{Code: "ERR_SYS_4002", Message: "Failed to apply runtime configuration", Details: err.Error()}
 	}
 
-	// Success
 	running = candidate
 
 	if err := SaveYAML(running); err != nil {

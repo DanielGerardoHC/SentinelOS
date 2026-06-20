@@ -19,6 +19,19 @@ type LoginResponse struct {
 	ExpiresIn int64  `json:"expires_in"`
 }
 
+// LoginHandler godoc
+// @Summary Admin Login
+// @Description Authenticate an admin and receive a JWT token.
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} LoginResponse "Successful login"
+// @Failure 400 {object} utils.APIError "ERR_NET_1004 Invalid JSON"
+// @Failure 401 {object} utils.APIError "ERR_SEC_5005 Invalid credentials"
+// @Failure 405 {object} utils.APIError "ERR_NET_1009 Method not allowed"
+// @Failure 500 {object} utils.APIError "ERR_SEC_5006 Failed to generate token"
+// @Router /api/login [post]
 func LoginHandler(authService *auth.AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

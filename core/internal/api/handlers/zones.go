@@ -11,6 +11,15 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// ZonesHandler godoc
+// @Summary List Zones
+// @Description Get a list of all zones.
+// @Tags security, zones
+// @Produce json
+// @Success 200 {object} map[string]model.Zone "List of zones"
+// @Failure 500 {object} utils.APIError "ERR_SYS_4001 Internal server error"
+// @Security ApiKeyAuth
+// @Router /api/zones [get]
 func ZonesHandler(w http.ResponseWriter, r *http.Request) {
 
 	zones, err := system.GetZones()
@@ -23,6 +32,27 @@ func ZonesHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(zones)
 }
 
+// ZoneCreateRequest represents the payload for creating a zone
+type ZoneCreateRequest struct {
+	Name       string   `json:"name"`
+	Type       string   `json:"type"`
+	Color      string   `json:"color"`
+	Interfaces []string `json:"interfaces"`
+	Networks   []string `json:"networks"`
+}
+
+// CreateZoneHandler godoc
+// @Summary Create Zone
+// @Description Create a new zone object.
+// @Tags security, zones
+// @Accept json
+// @Produce json
+// @Param request body ZoneCreateRequest true "Zone details"
+// @Success 200 {object} map[string]string "message: zone added in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Zone Type"
+// @Failure 409 {object} utils.APIError "ERR_NET_2006 Resource already exists"
+// @Security ApiKeyAuth
+// @Router /api/zones [post]
 func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -30,13 +60,7 @@ func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Name       string   `json:"name"`
-		Type       string   `json:"type"`
-		Color      string   `json:"color"`
-		Interfaces []string `json:"interfaces"`
-		Networks   []string `json:"networks"`
-	}
+	var req ZoneCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -89,6 +113,27 @@ func CreateZoneHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "zone added in candidate"}`))
 }
 
+// ZoneEditRequest represents the payload for editing a zone
+type ZoneEditRequest struct {
+	Type       string   `json:"type"`
+	Color      string   `json:"color"`
+	Interfaces []string `json:"interfaces"`
+	Networks   []string `json:"networks"`
+}
+
+// EditZoneHandler godoc
+// @Summary Edit Zone
+// @Description Update an existing zone object.
+// @Tags security, zones
+// @Accept json
+// @Produce json
+// @Param name path string true "Zone Name"
+// @Param request body ZoneEditRequest true "Zone details"
+// @Success 200 {object} map[string]string "message: zone updated in candidate"
+// @Failure 400 {object} utils.APIError "Invalid JSON or Zone Type"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/zones/{name} [put]
 func EditZoneHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {
@@ -108,12 +153,7 @@ func EditZoneHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Type       string   `json:"type"`
-		Color      string   `json:"color"`
-		Interfaces []string `json:"interfaces"`
-		Networks   []string `json:"networks"`
-	}
+	var req ZoneEditRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.SendError(w, http.StatusBadRequest, "ERR_NET_1004", "Invalid JSON payload", err.Error())
@@ -173,6 +213,16 @@ func EditZoneHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "zone updated in candidate"}`))
 }
 
+// DeleteZoneHandler godoc
+// @Summary Delete Zone
+// @Description Delete an existing zone object.
+// @Tags security, zones
+// @Produce json
+// @Param name path string true "Zone Name"
+// @Success 200 {object} map[string]string "message: zone deleted in candidate"
+// @Failure 404 {object} utils.APIError "ERR_NET_1003 Resource not found"
+// @Security ApiKeyAuth
+// @Router /api/zones/{name} [delete]
 func DeleteZoneHandler(w http.ResponseWriter, r *http.Request) {
 	fw := config_engine.GetCandidate()
 	if fw == nil {

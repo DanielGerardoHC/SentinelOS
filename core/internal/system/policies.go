@@ -22,7 +22,6 @@ if fw == nil {
 
 	for _, policy := range fw.Policies {
 
-		// Convertir services 
 		var services []string
 		for _, s := range policy.Services {
 			if s != nil {
@@ -30,7 +29,6 @@ if fw == nil {
 			}
 		}
 
-		// Manejo seguro de punteros
 		srcZone := ""
 		if policy.SrcZone != nil {
 			srcZone = policy.SrcZone.Name

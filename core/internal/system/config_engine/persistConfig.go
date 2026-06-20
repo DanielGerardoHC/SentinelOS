@@ -13,7 +13,6 @@ func SaveYAML(fw *model.Firewall) error {
 
 	var raw config.RawConfig
 
-	// Zones
 	for _, z := range fw.Zones {
 		raw.Zones = append(raw.Zones, struct {
 			Name       string   `yaml:"name"`
@@ -30,7 +29,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Interfaces
 	for _, i := range fw.Interfaces {
 		raw.Interfaces = append(raw.Interfaces, struct {
 			Name       string   `yaml:"name"`
@@ -47,7 +45,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Vlans
 	for _, v := range fw.Vlans {
 		raw.Vlans = append(raw.Vlans, struct {
 			Name       string   `yaml:"name"`
@@ -68,7 +65,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Addresses
 	for _, a := range fw.Addresses {
 		var ips []string
 		for _, ip := range a.IPs {
@@ -84,7 +80,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Services
 	for _, s := range fw.Services {
 		raw.Services = append(raw.Services, struct {
 			Name     string `yaml:"name"`
@@ -97,7 +92,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Routes
 	for _, r := range fw.Routes {
 		raw.Route = append(raw.Route, struct {
 			ID          int    `yaml:"id"`
@@ -116,7 +110,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// Policies
 	for _, p := range fw.Policies {
 
 		var services []string
@@ -145,7 +138,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// NAT
    for _, n := range fw.NATRules {
 		raw.NATRules = append(raw.NATRules, struct {
 			ID             int    `yaml:"id"`
@@ -174,7 +166,6 @@ func SaveYAML(fw *model.Firewall) error {
 		})
 	}
 
-	// DHCP
 	for _, d := range fw.DHCPConfigs {
 		raw.DHCP = append(raw.DHCP, struct {
 			Interface    string   `yaml:"interface"`

@@ -20,7 +20,6 @@ func CloneFirewall(src *model.Firewall) (*model.Firewall, error) {
 		DHCPConfigs: make([]*model.DHCP, len(src.DHCPConfigs)),
 	}
 
-	// Clonar maps
 	for k, v := range src.Zones {
 		zoneCopy := *v
 		clone.Zones[k] = &zoneCopy
@@ -46,7 +45,6 @@ func CloneFirewall(src *model.Firewall) (*model.Firewall, error) {
 		clone.Services[k] = &svcCopy
 	}
 
-	// Clonar slices
 	copy(clone.Routes, src.Routes)
 	copy(clone.Policies, src.Policies)
 	copy(clone.NATRules, src.NATRules)

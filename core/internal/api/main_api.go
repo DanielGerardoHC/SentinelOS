@@ -6,12 +6,21 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 
+	_ "sentinelos/core/docs" // Swagger docs
 	"sentinelos/core/internal/api/handlers"
 	"sentinelos/core/internal/api/middleware"
 	"sentinelos/core/internal/auth"
+	"os"
 )
 
+// @title SentinelOS API
+// @version 1.0
+// @description Next-Generation Firewall Management API.
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func StartAPIServer() {
 
 	users, err := auth.LoadUsers("/srv/sentinelos/core/internal/auth/users.yml")
@@ -27,13 +36,14 @@ func StartAPIServer() {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(chimiddleware.StripSlashes)
 
-	// ruta principal del API
+	if os.Getenv("SENTINELOS_ENV") == "development" {
+		r.Get("/swagger/*", httpSwagger.WrapHandler)
+	}
+
 	r.Route("/api", func(api chi.Router) {
 
-		// public
 		api.Post("/login", handlers.LoginHandler(authService))
 
-		// protected
 		api.Group(func(protected chi.Router) {
 
 			protected.Use(middleware.JWTMiddleware)
@@ -104,7 +114,6 @@ func StartAPIServer() {
 				rt.Delete("/{id}", handlers.DeletePolicyHandler)
 			})
 
-			// config engine
 			protected.Post("/config/begin", handlers.BeginConfigHandler)
 			protected.Post("/config/commit", handlers.CommitHandler)
 		})
